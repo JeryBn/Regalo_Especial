@@ -1,10 +1,13 @@
 # Universo 21
 
-Escena de cumpleaños 3D con 21 galaxias y 21 deseos. Toda la imagen espacial se genera en el navegador: estrellas, gas, polvo y galaxias. La imagen aportada por el usuario orientó la paleta y la iluminación; no se muestra ni se carga como fondo. No hay planetas.
+Escena de cumpleaños 3D con 21 galaxias y deseos. Estrellas, gas, polvo y galaxias se generan en el navegador. Sin planetas ni fotografías como fondo.
 
-## Interacción
+## Explorar
 
-Rueda o pellizco: vuelo suave. Arrastrar: girar alrededor del destino. Seleccionar galaxia: acercarse y descubrir su deseo. Al entrar y salir se mantiene el entorno estrellado, con capas de gas y estrellas cercanas. Botones para zoom, reinicio y pausa.
+- Ratón: arrastrar para girar; rueda para viajar en la dirección del cursor. Al apuntar una galaxia visible, el acercamiento se orienta hacia ella. El botón derecho permite desplazar la vista.
+- Celular: un dedo gira; pellizco acerca o aleja alrededor del punto medio; mover dos dedos desplaza la vista.
+- Un único botón restaura la vista general. El selector permite visitar cualquiera de las 21 galaxias.
+- La cámara se aproxima de manera amortiguada y continua; el deseo se revela al llegar.
 
 ## Desarrollo
 
@@ -14,14 +17,10 @@ npm run dev
 npm run build
 ```
 
-Publicar `dist/`. React, Vite, Three.js y OrbitControls. `src/environment.js` genera ruido para las nubes y los campos estelares. `src/galaxy.js` genera los discos y brazos de las galaxias. `src/main.jsx` controla el vuelo y los deseos.
+Publicar `dist/`. React, Vite, Three.js y OrbitControls. `src/environment.js` genera gas y campos estelares; `src/galaxy.js`, las galaxias; `src/main.jsx`, la navegación y los deseos.
 
 ## Revisión
 
 https://drop.app.runonflux.io/feliz-cumpleanos/
 
-Flux Drop conserva la publicación sin cuenta durante 7 días desde la última actualización. El historial permanece en GitHub.
-
-## Vuelo libre
-
-El zoom traslada cámara y punto de mirada en la misma dirección y usa un destino amortiguado continuo, sin cambiar automáticamente el centro de órbita al cruzar una escala. WASD desplaza; Q/E cambia la altura; arrastrar gira; el botón derecho desplaza lateralmente. Los seis botones en pantalla permiten el movimiento en dispositivos táctiles. Las teclas se liberan al soltar, perder foco o salir de la ventana.
+Flux Drop conserva la publicación sin cuenta durante 7 días desde su última actualización. El historial permanece en GitHub.

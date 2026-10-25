@@ -32,7 +32,7 @@ function Space({api,onSelect,onError}){const host=useRef(null);useEffect(()=>{le
    const rect=renderer.domElement.getBoundingClientRect();pointer.set(event?(event.clientX-rect.left)/rect.width*2-1:0,event?-(event.clientY-rect.top)/rect.height*2+1:0);
    raycaster.setFromCamera(pointer,camera);const nearest=nearestGalaxy(),base=tween?tween.position.clone():camera.position.clone(),look=tween?tween.target.clone():controls.target.clone();
    let direction=raycaster.ray.direction.clone(),distance=nearest.distance;
-   if(factor<1&&nearest.distance>nearest.galaxy.size*2.5){const hit=raycaster.intersectObjects(hits)[0];if(hit){const g=galaxies[hit.object.userData.index];direction=g.group.position.clone().sub(base).normalize();distance=base.distanceTo(g.group.position);travelIndex=hit.object.userData.index;announce=true;}}
+   if(factor<1&&nearest.distance>nearest.galaxy.size*2.5){const hit=raycaster.intersectObjects(hits)[0];if(hit&&camera.position.length()<3400){const g=galaxies[hit.object.userData.index];direction=g.group.position.clone().sub(base).normalize();distance=base.distanceTo(g.group.position);travelIndex=hit.object.userData.index;announce=true;}}
    const speed=THREE.MathUtils.clamp(distance*.65,2,2200),movement=direction.multiplyScalar(-Math.log(factor)*speed);
    base.add(movement);look.add(movement);setFlight(base,look);
  }
@@ -55,6 +55,7 @@ function App(){const api=useRef(null),[selected,setSelected]=useState(null),[err
 createRoot(document.getElementById('root')).render(<App/>);
 
 import { createGalaxy } from './galaxy.js';
+
 
 
 
