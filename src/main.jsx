@@ -19,7 +19,7 @@ function Galaxy({onOpen,nav,reset,visited}){
  const move=ev=>{if(!pointers.has(ev.pointerId))return;const e=engine.current;pointers.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});if(pointers.size===2){const p=[...pointers.values()],d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);e.target=Math.max(0,Math.min(3.5,e.target+Math.log(Math.max(d,1)/Math.max(pinch,1))));pinch=d;}else if(prev){const factor=Math.exp(e.zoom)*Math.min(w/1000,h/750)*1.2;e.tx-=(ev.clientX-prev.x)/factor;e.ty-=(ev.clientY-prev.y)/factor;}prev={x:ev.clientX,y:ev.clientY};};
  const up=ev=>{pointers.delete(ev.pointerId);prev=null;};
  el.addEventListener('wheel',wheel,{passive:false});el.addEventListener('pointerdown',down);el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
- const draw=()=>{const e=engine.current,lerp=reduced?1:.075;e.zoom+=(e.target-e.zoom)*lerp;e.x+=(e.tx-e.x)*lerp;e.y+=(e.ty-e.y)*lerp;const scale=Math.min(w/1050,h/760)*1.1*Math.exp(e.zoom);const cx=w/2,cy=h*.53;ctx.fillStyle='#050811';ctx.fillRect(0,0,w,h);
+ const draw=()=>{const e=engine.current,lerp=reduced?1:.075;e.zoom+=(e.target-e.zoom)*lerp;e.x+=(e.tx-e.x)*lerp;e.y+=(e.ty-e.y)*lerp;const scale=(w>900?Math.min(w/1400,h/950)*.95:Math.min(w/1050,h/760)*1.1)*Math.exp(e.zoom);const cx=w>900?w*.62:w/2,cy=h*.53;ctx.fillStyle='#050811';ctx.fillRect(0,0,w,h);
  const nebula=(x,y,r,color)=>{const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,color);g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);};
  nebula(cx-e.x*scale*.18-180,cy-e.y*scale*.18,Math.max(w,h)*.65,'#55307565');nebula(cx+240-e.x*scale*.12,cy+80,Math.max(w,h)*.5,'#174c5b50');
  const travel=e.zoom*1000;
@@ -44,5 +44,6 @@ function App(){const [modal,setModal]=useState(null),[nav,setNav]=useState(null)
  </div>
 }
 createRoot(document.getElementById('root')).render(<App/>);
+
 
 
