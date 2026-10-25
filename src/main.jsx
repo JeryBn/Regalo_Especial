@@ -13,7 +13,7 @@ function Space({api,onSelect,onError}){const host=useRef(null);useEffect(()=>{le
  const material=new THREE.ShaderMaterial({vertexShader:vertex,fragmentShader:fragment,uniforms:{scale:{value:800},reveal:{value:1}},transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,vertexColors:false});
  const makePoints=(positions,colors,sizes)=>{const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geo.setAttribute('tint',new THREE.Float32BufferAttribute(colors,3));geo.setAttribute('pointSize',new THREE.Float32BufferAttribute(sizes,1));return new THREE.Points(geo,material);};
  const backdrop=createBackdrop();renderer.autoClear=false;const interior=createInterior(random);scene.add(interior.group);const nebula=createNebula(random);scene.add(nebula.group);let interiorIndex=null;
- const sp=[],sc=[],ss=[];for(let i=0;i<6500;i++){const u=random()*Math.PI*2,v=Math.acos(2*random()-1),r=2000+random()*5000;sp.push(r*Math.sin(v)*Math.cos(u),r*Math.cos(v),r*Math.sin(v)*Math.sin(u));const b=.4+random()*.6;sc.push(b*.83,b*.9,b);ss.push(.4+Math.pow(random(),5)*3.5);}const starfield=makePoints(sp,sc,ss);starfield.material=material.clone();starfield.visible=true;scene.add(starfield); const galaxies=[],hits=[];const mobile=innerWidth<650;
+ const sp=[],sc=[],ss=[];for(let i=0;i<6500;i++){const u=random()*Math.PI*2,v=Math.acos(2*random()-1),r=2000+random()*5000;sp.push(r*Math.sin(v)*Math.cos(u),r*Math.cos(v),r*Math.sin(v)*Math.sin(u));const b=.4+random()*.6;sc.push(b*.83,b*.9,b);ss.push(1.2+Math.pow(random(),6)*30);}const starfield=makePoints(sp,sc,ss);starfield.material=material.clone();starfield.material.uniforms.reveal.value=1.7;starfield.visible=true;scene.add(starfield); const galaxies=[],hits=[];const mobile=innerWidth<650;
  for(let g=0;g<21;g++){
    const galaxy=createGalaxy(g,random,makePoints,mobile),{group,size}=galaxy;
    // Rejection sampling maintains actual space between galaxies in all three axes.
@@ -52,6 +52,7 @@ function App(){const api=useRef(null),[selected,setSelected]=useState(null),[pau
 createRoot(document.getElementById('root')).render(<App/>);
 
 import { createGalaxy } from './galaxy.js';
+
 
 
 
