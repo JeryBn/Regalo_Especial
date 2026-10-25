@@ -1,50 +1,45 @@
-import React, { useState } from 'react';
-import { createRoot } from 'react-dom/client';
-import { ArrowUpRight, ArrowRight, RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import React, {useEffect,useRef,useState} from 'react';
+import {createRoot} from 'react-dom/client';
+import {ArrowUpRight, ArrowLeft, Plus, Minus, LocateFixed, X, Sparkles, Orbit, MoveUpRight, Volume2, VolumeX} from 'lucide-react';
 import './style.css';
 
-const fullName = 'Stacy Brigitte Valenzuela Rios';
-function App() {
-  const [step, setStep] = useState(0);
-  const [sound, setSound] = useState(false);
-  const [burst, setBurst] = useState(0);
-  function chime() {
-    if (!sound) return;
-    try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      const ctx = new AudioCtx();
-      [523.25,659.25,783.99].forEach((hz,i) => {
-        const osc=ctx.createOscillator(), gain=ctx.createGain();
-        osc.connect(gain);gain.connect(ctx.destination);osc.frequency.value=hz;
-        gain.gain.setValueAtTime(0,ctx.currentTime+i*.09);
-        gain.gain.linearRampToValueAtTime(.07,ctx.currentTime+i*.09+.02);
-        gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.09+.5);
-        osc.start(ctx.currentTime+i*.09);osc.stop(ctx.currentTime+i*.09+.5);
-      });
-      setTimeout(()=>ctx.close(),1100);
-    } catch {}
-  }
-  function next(){chime();setStep(s=>Math.min(s+1,3));setBurst(b=>b+1);}
-  return <div className="site-shell">
-    <header><a className="wordmark" href="#" onClick={e=>{e.preventDefault();setStep(0)}} aria-label="Volver al inicio">s<span className="wordmark-star">✳</span><span>birthday studio</span></a><div className="header-right"><span className="date">30 OCT / 2026</span><button className="sound" onClick={()=>setSound(!sound)} aria-label={sound?'Desactivar sonido':'Activar sonido'}>{sound?<Volume2 size={18}/>:<VolumeX size={18}/>}</button></div></header>
-    <main>
-      <section className="intro"><div className="eyebrow"><span/> UNA SOLA FECHA. TODA UNA CELEBRACIÓN.</div><h1>Hoy el mundo<br/>dice <em>Stacy.</em><span className="title-spark">✳</span></h1><p className="intro-copy">21 años merecen algo fuera de lo común.<br/>Esta pequeña sorpresa lleva tu nombre.</p><div className="recipient"><span className="recipient-line"/><span>PARA <strong>{fullName}</strong></span></div></section>
-      <section className={'experience stage-'+step} aria-label="Sorpresa de cumpleaños">
-        <div className="panel-top"><span>EDICIÓN LIMITADA</span><span>N.º 021 <span className="tiny-star">✧</span></span></div>
-        <div className="stage" aria-live="polite">
-          {step===0 && <div className="scene entrance" key="gift"><div className="orbit orbit-one"/><div className="orbit orbit-two"/><span className="floating star-a">✳</span><span className="floating star-b">✧</span><span className="floating dot-a"/><button className="gift" onClick={next} aria-label="Desenvolver el regalo"><span className="bow bow-left"/><span className="bow bow-right"/><span className="gift-lid"/><span className="gift-body"/><span className="ribbon"/><span className="gift-tag">solo para<br/><b>Stacy</b><span>↗</span></span></button><span className="handnote">¡Sí, es para ti! <span>⤴</span></span></div>}
-          {(step===1||step===2) && <div className="scene cake-scene entrance" key="cake"><span className="floating star-a">✳</span><span className="floating star-b">✧</span><div className="cake-art"><div className="candles">{Array.from({length:21},(_,i)=><i key={i} className={'candle '+(step===2?'out':'')} style={{'--i':i, left: (i%7)*20+Math.floor(i/7)*5, top: Math.floor(i/7)*12}}><span className="flame"/></i>)}</div><div className="cake-top"/><div className="cake-body"><div className="icing"/><span className="cake-number">21</span>{Array.from({length:9},(_,i)=><i className="sprinkle" key={i} style={{'--i':i}}/>)}</div><div className="cake-plate"/></div><span className="handnote">{step===1?'Un deseo. Y un toque.':'¡Que se cumpla!'} <span>✧</span></span></div>}
-          {step===3 && <div className="card-scene entrance" key="card"><div className="birthday-card"><span className="card-kicker">30 DE OCTUBRE · TU DÍA</span><div className="card-star">✳</div><h2>¡Felices<br/><em>21, Stacy!</em></h2><p>Que esta nueva vuelta al sol venga con motivos para reír, planes que te emocionen y sorpresas de las buenas.</p><p className="card-sign">Hoy se celebra a lo grande.<br/><strong>¡Feliz cumpleaños! ✧</strong></p><span className="card-bottom">STACY BRIGITTE <span>ED. 21</span></span></div></div>}
-        </div>
-        <div className="panel-bottom"><div className="stage-caption"><span className="small-label">{['01 / LA SORPRESA','02 / EL DESEO','02 / EL DESEO','03 / TU NUEVO CAPÍTULO'][step]}</span><h2>{['Las cosas buenas vienen envueltas.','Pide algo bonito.','¡Bienvenidos los 21!','Este día lleva tu nombre.'][step]}</h2><p>{['Tu cumpleaños empieza con un pequeño toque.','Hay 21 velitas esperando tu deseo.','Las velitas se apagaron. Falta una cosa…','Una nueva edad. Muchísimas posibilidades.'][step]}</p></div><button className="primary" onClick={step===3?()=>{setStep(0);setBurst(0)}:next}>{['Abrir mi sorpresa','Apagar las velitas','Abrir mi tarjeta','Volver a celebrar'][step]}{step===3?<RotateCcw size={17}/>:<ArrowUpRight size={19}/>}</button></div>
-      </section>
-      <div className="journey" aria-label="Progreso"><span className={step===0?'active': 'done'}><b>01</b> Desenvuelve</span><i/><span className={step===1||step===2?'active':step===3?'done':''}><b>02</b> Pide un deseo</span><i/><span className={step===3?'active':''}><b>03</b> Celebra</span></div>
-      <aside className="bottom-note"><span>✧</span><p>Algunas fechas merecen su propia pequeña obra de arte.</p><span>✧</span></aside>
-    </main>
-    <footer><span>HECHO PARA TU DÍA.</span><span>STACY / CAPÍTULO 21 <ArrowRight size={13}/></span></footer>
-    {(step===2||step===3)&&<div className="confetti" key={burst} aria-hidden="true">{Array.from({length:55},(_,i)=><i key={i} style={{'--x':(i*37)%100+'vw','--delay':(i%9)*.07+'s','--rotation':i*47+'deg','--color':['#f27945','#e6bc51','#638b6a','#c49ac9','#f2aaa0'][i%5]}}/>)}</div>}
-  </div>
+const points=[[-360,-150],[-305,-210],[-230,-225],[-160,-205],[-120,-150],[-140,-90],[-205,-30],[-280,40],[-335,100],[-350,160],[-235,170],[-105,170],[100,-135],[165,-175],[225,-225],[225,-145],[225,-65],[225,15],[225,95],[225,170],[320,170]];
+const wishes=['Que no falten motivos para reír.','Que lleguen planes que te emocionen.','Que tus metas encuentren su momento.','Que descubras lugares increíbles.','Que te rodeen buenas personas.','Que tengas días de esos que quieres repetir.','Que sobren las buenas noticias.','Que te animes a probar cosas nuevas.','Que celebres también los pequeños logros.','Que encuentres tiempo para lo que disfrutas.','Que este año te sorprenda para bien.','Que nunca falte un buen pastel.','Que lleguen aventuras inesperadas.','Que tengas música para cada momento.','Que las ideas se conviertan en planes.','Que haya más descansos sin prisa.','Que aprendas algo que te encante.','Que tengas historias buenísimas que contar.','Que los días difíciles tengan buenas pausas.','Que celebres todo lo que has conseguido.','Que tus 21 sean un capítulo increíble.'];
+const destinations=[{id:0,title:'Los deseos',subtitle:'21 pequeñas posibilidades',color:'#b9a2ff',kind:'wishes'},{id:11,title:'Un deseo antes de soplar',subtitle:'El pastel de los 21',color:'#ffc58f',kind:'cake'},{id:20,title:'Tu próximo capítulo',subtitle:'Una sorpresa entre estrellas',color:'#8de9df',kind:'card'}];
+function Galaxy({onOpen,nav,reset,visited}){
+ const canvas=useRef(null),buttons=useRef([]),engine=useRef({zoom:0,target:0,x:0,y:0,tx:0,ty:0});
+ const [depth,setDepth]=useState(0);
+ useEffect(()=>{const e=engine.current;if(nav){e.target=1.9;e.tx=points[nav.id][0];e.ty=points[nav.id][1];}},[nav]);
+ useEffect(()=>{Object.assign(engine.current,{target:0,tx:0,ty:0});},[reset]);
+ useEffect(()=>{const el=canvas.current,ctx=el.getContext('2d');let w=0,h=0,raf,tick=0;const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;const stars=Array.from({length:1000},(_,i)=>({x:(Math.sin(i*127.1+3)*.5+.5)*7000-3500,y:(Math.sin(i*311.7+7)*.5+.5)*5000-2500,z:400+(Math.sin(i*74.7)*.5+.5)*4800,r:.5+(i%5)*.25}));
+ const resize=()=>{w=el.clientWidth;h=el.clientHeight;const d=Math.min(devicePixelRatio,2);el.width=w*d;el.height=h*d;ctx.setTransform(d,0,0,d,0,0);};resize();const ro=new ResizeObserver(resize);ro.observe(el);
+ const pointers=new Map();let prev=null,pinch=0,dragged=false;
+ const wheel=ev=>{ev.preventDefault();const e=engine.current;e.target=Math.max(0,Math.min(3.5,e.target-ev.deltaY*.0018));};
+ const down=ev=>{pointers.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});prev={x:ev.clientX,y:ev.clientY};dragged=false;el.setPointerCapture(ev.pointerId);if(pointers.size===2){const p=[...pointers.values()];pinch=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);}};
+ const move=ev=>{if(!pointers.has(ev.pointerId))return;const e=engine.current;pointers.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});if(pointers.size===2){const p=[...pointers.values()],d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);e.target=Math.max(0,Math.min(3.5,e.target+Math.log(Math.max(d,1)/Math.max(pinch,1))));pinch=d;}else if(prev){const factor=Math.exp(e.zoom)*Math.min(w/1000,h/750)*1.2;e.tx-=(ev.clientX-prev.x)/factor;e.ty-=(ev.clientY-prev.y)/factor;dragged=true;}prev={x:ev.clientX,y:ev.clientY};};
+ const up=ev=>{pointers.delete(ev.pointerId);prev=null;};
+ el.addEventListener('wheel',wheel,{passive:false});el.addEventListener('pointerdown',down);el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
+ const draw=()=>{const e=engine.current,lerp=reduced?1:.075;e.zoom+=(e.target-e.zoom)*lerp;e.x+=(e.tx-e.x)*lerp;e.y+=(e.ty-e.y)*lerp;const scale=Math.min(w/1050,h/760)*1.3*Math.exp(e.zoom);const cx=w/2,cy=h*.49;ctx.fillStyle='#050811';ctx.fillRect(0,0,w,h);
+ const nebula=(x,y,r,color)=>{const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,color);g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);};
+ nebula(cx-e.x*scale*.18-180,cy-e.y*scale*.18,Math.max(w,h)*.65,'#45266b30');nebula(cx+240-e.x*scale*.12,cy+80,Math.max(w,h)*.5,'#15465325');
+ const travel=e.zoom*1000;
+ for(const s of stars){const z=((s.z-travel)%4800+4800)%4800+100,p=650/z,x=cx+(s.x-e.x*.5)*p,y=cy+(s.y-e.y*.5)*p;if(x<0||x>w||y<0||y>h)continue;const twinkle=reduced?1:.8+.2*Math.sin(tick*.015+s.x);ctx.globalAlpha=Math.min(.85,p*.4)*twinkle;ctx.fillStyle=s.r>1?'#d5ddff':'#a7b8cd';ctx.beginPath();ctx.arc(x,y,Math.min(2.4,s.r*p),0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
+ const project=([x,y])=>[cx+(x-e.x)*scale,cy+(y-e.y)*scale];
+ ctx.strokeStyle=`rgba(158,156,214,${Math.max(.025,.24-e.zoom*.06)})`;ctx.lineWidth=.7;[[0,11],[12,20]].forEach(([a,b])=>{ctx.beginPath();for(let i=a;i<=b;i++){const [x,y]=project(points[i]);i===a?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();});
+ points.forEach((p,i)=>{const [x,y]=project(p),d=destinations.find(d=>d.id===i),color=d?.color||'#d5d7f7',r=d?8:3;const glow=ctx.createRadialGradient(x,y,0,x,y,(d?50:18)*Math.min(scale,2));glow.addColorStop(0,color+(d?'55':'33'));glow.addColorStop(1,'transparent');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(x,y,(d?50:18)*Math.min(scale,2),0,7);ctx.fill();ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r*Math.min(scale,1.6),0,7);ctx.fill();if(d){ctx.strokeStyle=color+'55';ctx.lineWidth=.7;ctx.beginPath();ctx.ellipse(x,y,23*Math.min(scale,1.6),9*Math.min(scale,1.6),-.5,0,7);ctx.stroke();}const b=buttons.current[i];if(b){b.style.transform=`translate(${x}px,${y}px)`;b.style.opacity=x< -50||x>w+50||y<60||y>h-90?0:1;b.style.pointerEvents=x<0||x>w||y<60||y>h-90?'none':'auto';}});
+ if(tick++%15===0)setDepth(Math.round(e.zoom/3.5*100));raf=requestAnimationFrame(draw);};draw();
+ return()=>{cancelAnimationFrame(raf);ro.disconnect();el.removeEventListener('wheel',wheel);el.removeEventListener('pointerdown',down);el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up);};},[]);
+ return <><canvas ref={canvas} className="galaxy-canvas" aria-label="Galaxia interactiva. Arrastra para explorar y usa la rueda o dos dedos para acercarte."/><div className="star-controls">{points.map((_,i)=>{const d=destinations.find(d=>d.id===i);return <button ref={el=>buttons.current[i]=el} key={i} className={'star-hit '+(d?'destination':'')+(visited.includes(i)?' visited':'')} onClick={()=>onOpen(d?.kind||'wish',i)} aria-label={d?d.title:`Estrella ${i+1}: descubrir deseo`}><span className="star-target"/>{d?<span className="star-label"><small>0{destinations.indexOf(d)+1} / {d.subtitle}</small><strong>{d.title} <ArrowUpRight size={12}/></strong></span>:<span className="star-index">{String(i+1).padStart(2,'0')}</span>}</button>})}</div><div className="zoom-tools"><button aria-label="Acercar" onClick={()=>engine.current.target=Math.min(3.5,engine.current.target+.4)}><Plus size={17}/></button><span>{depth}%</span><button aria-label="Alejar" onClick={()=>engine.current.target=Math.max(0,engine.current.target-.4)}><Minus size={17}/></button><i/><button aria-label="Ver toda la galaxia" onClick={()=>Object.assign(engine.current,{target:0,tx:0,ty:0})}><LocateFixed size={17}/></button></div></>;
+}
+function App(){const [modal,setModal]=useState(null),[nav,setNav]=useState(null),[reset,setReset]=useState(0),[visited,setVisited]=useState([]),[blown,setBlown]=useState(false),[wish,setWish]=useState(0);
+ function open(kind,id){setModal(kind);setWish(id);setVisited(v=>v.includes(id)?v:[...v,id]);}
+ useEffect(()=>{const fn=e=>{if(e.key==='Escape')setModal(null)};window.addEventListener('keydown',fn);return()=>window.removeEventListener('keydown',fn)},[]);
+ return <div className="universe"><Galaxy onOpen={open} nav={nav} reset={reset} visited={visited}/><header><a href="#" onClick={e=>{e.preventDefault();setReset(r=>r+1)}} className="brand"><Orbit size={24}/><span>UNIVERSO <b>21</b></span></a><span className="header-date">STACY BRIGITTE <i/> 30 OCT 2026</span><button className="skip" onClick={()=>open('card',20)}>Tu sorpresa <ArrowUpRight size={14}/></button></header><div className="hero"><div className="eyebrow"><span/>UNA NUEVA VUELTA AL SOL</div><h1>Hay todo un universo<br/>por <em>descubrir.</em></h1><p>Hoy, las estrellas celebran a Stacy.</p></div><div className="coordinate">S / B<br/><span>21° · 30′ · 10″</span></div><div className="explore-hint"><span className="hint-line"/>ACÉRCATE. CADA ESTRELLA TIENE ALGO PARA TI.<span className="hint-line"/></div><footer><span className="instruction">ARRASTRA PARA EXPLORAR <span>·</span> ZOOM CON RUEDA O DOS DEDOS</span><nav aria-label="Destinos de la galaxia">{destinations.map((d,i)=><button key={d.id} onClick={()=>{setNav({...d,time:Date.now()});open(d.kind,d.id)}}><span>0{i+1}</span>{['Deseos','Pastel','Sorpresa'][i]}<MoveUpRight size={12}/></button>)}</nav><span className="edition">EDICIÓN ÚNICA / STACY · 21</span></footer>
+ {modal&&<div className="modal-backdrop" onClick={()=>setModal(null)}><section className={'modal modal-'+modal} role="dialog" aria-modal="true" aria-label={modal==='cake'?'Pastel de cumpleaños':modal==='card'?'Tarjeta de cumpleaños':'Deseos de cumpleaños'} onClick={e=>e.stopPropagation()}><button autoFocus className="close" aria-label="Cerrar y volver a la galaxia" onClick={()=>setModal(null)}><X size={20}/></button><div className="modal-kicker">UNIVERSO 21 <span>✧</span> 30 DE OCTUBRE</div>
+ {(modal==='wish'||modal==='wishes')&&<><span className="wish-star">✧</span><div className="eyebrow">ESTRELLA {String(wish+1).padStart(2,'0')} DE 21</div><h2>{wishes[wish]}</h2><p>Un pequeño deseo para esta nueva vuelta al sol.</p><button className="action" onClick={()=>setWish(w=>(w+1)%21)}>Descubrir otro deseo <Sparkles size={16}/></button></>}
+ {modal==='cake'&&<><div className={'space-cake '+(blown?'blown':'')}><div className="candle-row">{Array.from({length:21},(_,i)=><i key={i} style={{left:15+(i%7)*23+Math.floor(i/7)*5,top:Math.floor(i/7)*12}}><b/></i>)}</div><div className="cake-frost"/><div className="cake-base"><span>21</span></div><div className="cake-orbit"/></div><div className="eyebrow">{blown?'DESEO EN ÓRBITA':'UNA PAUSA PARA PEDIR UN DESEO'}</div><h2>{blown?'Que venga lo extraordinario.':'21 velitas. Un nuevo capítulo.'}</h2><p>{blown?'¡Feliz cumpleaños, Stacy! Que este año te sorprenda para bien.':'Piensa en algo que te ilusione y apaga las velitas.'}</p><button className="action" onClick={()=>blown?open('card',20):setBlown(true)}>{blown?'Descubrir mi sorpresa':'Apagar las 21 velitas'} <Sparkles size={16}/></button>{blown&&<div className="celebration" aria-hidden="true">{Array.from({length:32},(_,i)=><i key={i} style={{'--i':i}}/>)}</div>}</>}
+ {modal==='card'&&<><div className="birthday-orbit"><span>21</span><i/><b>✦</b></div><div className="eyebrow">STACY BRIGITTE VALENZUELA RIOS</div><h2>El universo sigue.<br/><em>Tu capítulo 21 empieza.</em></h2><p>Que lleguen lugares por descubrir, ideas que se hagan realidad y días que merezcan celebrarse.</p><div className="card-greeting">¡Feliz cumpleaños, Stacy!</div><p className="card-footnote">30 de octubre de 2026 · Una nueva vuelta al sol.</p><button className="action" onClick={()=>{setModal(null);setReset(r=>r+1)}}>Seguir explorando <ArrowUpRight size={16}/></button></>}
+ <button className="back" onClick={()=>setModal(null)}><ArrowLeft size={13}/> Volver al universo</button></section></div>}
+ </div>
 }
 createRoot(document.getElementById('root')).render(<App/>);
-
-
