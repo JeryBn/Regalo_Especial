@@ -21,3 +21,7 @@ Publicar `dist/`. React, Vite, Three.js y OrbitControls. `src/environment.js` ge
 https://drop.app.runonflux.io/feliz-cumpleanos/
 
 Flux Drop conserva la publicación sin cuenta durante 7 días desde la última actualización. El historial permanece en GitHub.
+
+## Vuelo libre
+
+El zoom traslada cámara y punto de mirada en la misma dirección y usa un destino amortiguado continuo, sin cambiar automáticamente el centro de órbita al cruzar una escala. WASD desplaza; Q/E cambia la altura; arrastrar gira; el botón derecho desplaza lateralmente. Los seis botones en pantalla permiten el movimiento en dispositivos táctiles. Las teclas se liberan al soltar, perder foco o salir de la ventana.
