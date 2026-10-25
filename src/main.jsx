@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ArrowUpRight, ArrowRight, RotateCcw, Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { ArrowUpRight, ArrowRight, RotateCcw, Volume2, VolumeX } from 'lucide-react';
 import './style.css';
 
 const fullName = 'Stacy Brigitte Valenzuela Rios';
@@ -33,7 +33,7 @@ function App() {
         <div className="panel-top"><span>EDICIÓN LIMITADA</span><span>N.º 021 <span className="tiny-star">✧</span></span></div>
         <div className="stage" aria-live="polite">
           {step===0 && <div className="scene entrance" key="gift"><div className="orbit orbit-one"/><div className="orbit orbit-two"/><span className="floating star-a">✳</span><span className="floating star-b">✧</span><span className="floating dot-a"/><button className="gift" onClick={next} aria-label="Desenvolver el regalo"><span className="bow bow-left"/><span className="bow bow-right"/><span className="gift-lid"/><span className="gift-body"/><span className="ribbon"/><span className="gift-tag">solo para<br/><b>Stacy</b><span>↗</span></span></button><span className="handnote">¡Sí, es para ti! <span>⤴</span></span></div>}
-          {(step===1||step===2) && <div className="scene cake-scene entrance" key="cake"><span className="floating star-a">✳</span><span className="floating star-b">✧</span><div className="cake-art"><div className="candles">{Array.from({length:21},(_,i)=><i key={i} className={'candle '+(step===2?'out':'')} style={{'--i':i}}><span className="flame"/></i>)}</div><div className="cake-top"/><div className="cake-body"><div className="icing"/><span className="cake-number">21</span>{Array.from({length:9},(_,i)=><i className="sprinkle" key={i} style={{'--i':i}}/>)}</div><div className="cake-plate"/></div><span className="handnote">{step===1?'Un deseo. Y un toque.':'¡Que se cumpla!'} <span>✧</span></span></div>}
+          {(step===1||step===2) && <div className="scene cake-scene entrance" key="cake"><span className="floating star-a">✳</span><span className="floating star-b">✧</span><div className="cake-art"><div className="candles">{Array.from({length:21},(_,i)=><i key={i} className={'candle '+(step===2?'out':'')} style={{'--i':i, left: ${(i%7)*20+Math.floor(i/7)*5}px, top: ${Math.floor(i/7)*12}px}}><span className="flame"/></i>)}</div><div className="cake-top"/><div className="cake-body"><div className="icing"/><span className="cake-number">21</span>{Array.from({length:9},(_,i)=><i className="sprinkle" key={i} style={{'--i':i}}/>)}</div><div className="cake-plate"/></div><span className="handnote">{step===1?'Un deseo. Y un toque.':'¡Que se cumpla!'} <span>✧</span></span></div>}
           {step===3 && <div className="card-scene entrance" key="card"><div className="birthday-card"><span className="card-kicker">30 DE OCTUBRE · TU DÍA</span><div className="card-star">✳</div><h2>¡Felices<br/><em>21, Stacy!</em></h2><p>Que esta nueva vuelta al sol venga con motivos para reír, planes que te emocionen y sorpresas de las buenas.</p><p className="card-sign">Hoy se celebra a lo grande.<br/><strong>¡Feliz cumpleaños! ✧</strong></p><span className="card-bottom">STACY BRIGITTE <span>ED. 21</span></span></div></div>}
         </div>
         <div className="panel-bottom"><div className="stage-caption"><span className="small-label">{['01 / LA SORPRESA','02 / EL DESEO','02 / EL DESEO','03 / TU NUEVO CAPÍTULO'][step]}</span><h2>{['Las cosas buenas vienen envueltas.','Pide algo bonito.','¡Bienvenidos los 21!','Este día lleva tu nombre.'][step]}</h2><p>{['Tu cumpleaños empieza con un pequeño toque.','Hay 21 velitas esperando tu deseo.','Las velitas se apagaron. Falta una cosa…','Una nueva edad. Muchísimas posibilidades.'][step]}</p></div><button className="primary" onClick={step===3?()=>{setStep(0);setBurst(0)}:next}>{['Abrir mi sorpresa','Apagar las velitas','Abrir mi tarjeta','Volver a celebrar'][step]}{step===3?<RotateCcw size={17}/>:<ArrowUpRight size={19}/>}</button></div>
@@ -46,3 +46,4 @@ function App() {
   </div>
 }
 createRoot(document.getElementById('root')).render(<App/>);
+
