@@ -1,39 +1,31 @@
-# Universo 21 · Stacy
+# Universo 21 · espacio 3D
 
-Galaxia interactiva de cumpleaños para Stacy Brigitte Valenzuela Rios: 21 años, 30 de octubre de 2026. Sin romance, tareas ni bloqueos.
+Escena de espacio exterior para el cumpleaños 21 de Stacy. En esta etapa solo incluye el universo, la cámara y 21 galaxias con un deseo en cada una.
 
-## Experiencia
+## Interacción
 
-- 21 estrellas conectadas dibujan el número 21 en la vista general.
-- Cámara con interpolación y campo de estrellas con profundidad; zoom con rueda, gesto de dos dedos o botones.
-- Arrastrar desplaza la galaxia; el botón de encuadre restaura la vista inicial.
-- Cada estrella descubre un deseo. Tres destinos principales: deseos, pastel y tarjeta.
-- Pastel ilustrado con 21 velas que se apagan con un toque.
-- Acceso directo a la sorpresa, navegación con teclado, cierre con Escape y movimiento reducido.
+- Arrastrar: orbitar la cámara en tres dimensiones.
+- Rueda del ratón o gesto de dos dedos: acercar y alejar.
+- Clic o toque en una galaxia: viaje de cámara y deseo.
+- Selector de galaxias: acceso directo y mediante teclado a las 21 galaxias.
+- Controles de zoom, vista inicial y pausa del movimiento.
 
-## Ejecutar
+Las galaxias tienen brazos espirales de partículas en volumen, orientaciones diferentes y giro propio. El encuadre inicial se adapta al formato vertical. El movimiento se puede pausar. La animación deja de renderizar cuando la pestaña está oculta.
 
-Node.js 20.19+ o 22.12+.
+## Desarrollo
 
 ```sh
 npm ci
 npm run dev
 npm run build
-npm run preview
 ```
 
-Publicar `dist/`. Vite usa rutas relativas para soportar enlaces con subdirectorios. No requiere servidor, claves, micrófono ni base de datos.
+Requiere Node.js 20.19+ o 22.12+. Publicar `dist/`; sus rutas son relativas. Sin servidor, registro, micrófono ni claves.
 
-## Archivos
+React + Vite + Three.js + OrbitControls. Renderizado WebGL; partículas y texturas generadas localmente, sin fotografías externas. Fuente DM Sans de Google Fonts con alternativa local; iconos Lucide.
 
-- `src/main.jsx`: motor Canvas, puntos de la constelación, deseos y paneles React.
-- `src/style.css`: aspecto del observatorio, pastel y adaptación móvil.
-- `vite.config.js`: rutas relativas.
+## Revisión
 
-Fuentes de Google Fonts con alternativas locales; iconos de Lucide. Los efectos y las ilustraciones se dibujan con Canvas y CSS.
+https://drop.app.runonflux.io/feliz-cumpleanos/
 
-## Publicación
-
-Enlace para revisión: https://drop.app.runonflux.io/feliz-cumpleanos/
-
-Flux Drop conserva publicaciones sin cuenta durante 7 días. Consultar la fecha de caducidad que muestra el servicio. El código y el historial permanecen en este repositorio.
+Flux Drop conserva publicaciones sin cuenta durante 7 días desde la última actualización. El historial permanece en GitHub.
