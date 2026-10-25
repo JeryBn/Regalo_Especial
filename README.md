@@ -1,41 +1,39 @@
-# Stacy · Edición 21
+# Universo 21 · Stacy
 
-Una sorpresa de cumpleaños breve y responsive para Stacy Brigitte Valenzuela Rios, por sus 21 años el 30 de octubre de 2026.
+Galaxia interactiva de cumpleaños para Stacy Brigitte Valenzuela Rios: 21 años, 30 de octubre de 2026. Sin romance, tareas ni bloqueos.
 
-## Recorrido
+## Experiencia
 
-1. Abre la caja ilustrada.
-2. Pide un deseo y apaga las 21 velitas con un toque.
-3. Abre la tarjeta de cumpleaños y vuelve a celebrar si quieres.
+- 21 estrellas conectadas dibujan el número 21 en la vista general.
+- Cámara con interpolación y campo de estrellas con profundidad; zoom con rueda, gesto de dos dedos o botones.
+- Arrastrar desplaza la galaxia; el botón de encuadre restaura la vista inicial.
+- Cada estrella descubre un deseo. Tres destinos principales: deseos, pastel y tarjeta.
+- Pastel ilustrado con 21 velas que se apagan con un toque.
+- Acceso directo a la sorpresa, navegación con teclado, cierre con Escape y movimiento reducido.
 
-Sin juegos, frases románticas, micrófono, registro ni base de datos. Sonido opcional mediante Web Audio, apagado inicialmente. Respeta la preferencia de movimiento reducido.
+## Ejecutar
 
-## Desarrollo
-
-Requiere Node.js 20.19+ o 22.12+.
+Node.js 20.19+ o 22.12+.
 
 ```sh
 npm ci
 npm run dev
-```
-
-## Producción
-
-```sh
 npm run build
 npm run preview
 ```
 
-Publicar el contenido de `dist/` en un alojamiento estático. No se necesitan claves ni variables de entorno.
+Publicar `dist/`. Vite usa rutas relativas para soportar enlaces con subdirectorios. No requiere servidor, claves, micrófono ni base de datos.
 
-## Personalización
+## Archivos
 
-- `src/main.jsx`: nombre, edad, fecha, mensajes y secuencia.
-- `src/style.css`: paleta, ilustraciones CSS, animaciones y tamaños responsive.
-- `index.html`: título y metadatos.
+- `src/main.jsx`: motor Canvas, puntos de la constelación, deseos y paneles React.
+- `src/style.css`: aspecto del observatorio, pastel y adaptación móvil.
+- `vite.config.js`: rutas relativas.
 
-Las ilustraciones de caja y pastel están hechas con CSS. Las fuentes DM Sans y Playfair Display se solicitan a Google Fonts y tienen alternativas locales. Iconos de Lucide.
+Fuentes de Google Fonts con alternativas locales; iconos de Lucide. Los efectos y las ilustraciones se dibujan con Canvas y CSS.
 
-## Verificación
+## Publicación
 
-Compilación de producción y revisión manual del recorrido: abrir regalo, apagar velitas, tarjeta final y reinicio. Diseño con puntos de adaptación a 850, 600 y 370 px.
+Enlace para revisión: https://drop.app.runonflux.io/feliz-cumpleanos/
+
+Flux Drop conserva publicaciones sin cuenta durante 7 días. Consultar la fecha de caducidad que muestra el servicio. El código y el historial permanecen en este repositorio.
