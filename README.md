@@ -10,7 +10,7 @@ Escena de espacio exterior para el cumpleaños 21 de Stacy. En esta etapa solo i
 - Selector de galaxias: acceso directo y mediante teclado a las 21 galaxias.
 - Controles de zoom, vista inicial y pausa del movimiento.
 
-Las galaxias tienen brazos espirales de partículas en volumen, orientaciones diferentes y giro propio. El encuadre inicial se adapta al formato vertical. El movimiento se puede pausar. La animación deja de renderizar cuando la pestaña está oculta.
+Las galaxias tienen brazos de polvo con textura procedural, bulbo estelar, halo de estrellas en volumen, orientaciones diferentes y giro propio. Están separadas por un mínimo de 250 unidades en un volumen tridimensional. El zoom selecciona una galaxia bajo el cursor o en la dirección de la cámara y viaja hacia ella; el deseo se revela al llegar. El encuadre inicial se adapta al formato vertical. El movimiento se puede pausar. La animación deja de renderizar cuando la pestaña está oculta.
 
 ## Desarrollo
 
@@ -29,3 +29,4 @@ React + Vite + Three.js + OrbitControls. Renderizado WebGL; partículas y textur
 https://drop.app.runonflux.io/feliz-cumpleanos/
 
 Flux Drop conserva publicaciones sin cuenta durante 7 días desde la última actualización. El historial permanece en GitHub.
+
