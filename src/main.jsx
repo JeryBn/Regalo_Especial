@@ -2,7 +2,7 @@ import { createDustWish } from "./dust-wish.js";
 import { createStarfield } from "./starfield.js";
 import { createMeteors } from "./meteors.js";
 import { createBackdrop, createInterior, createNebula } from "./environment.js";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { createRoot } from "react-dom/client";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -31,7 +31,7 @@ const wishes = [
   "Esta galaxia celebra contigo.",
   "¡Felices 21, Stacy!",
 ];
-function Space({ api, onSelect, onError }) {
+function Space({ api, onSelect, onError, onProgress }) {
   const host = useRef(null);
   useEffect(() => {
     let renderer;
@@ -94,7 +94,7 @@ function Space({ api, onSelect, onError }) {
       geo.setAttribute("pointSize", new THREE.Float32BufferAttribute(sizes, 1));
       return new THREE.Points(geo, material);
     };
-    const dustWish = createDustWish(scene);
+    const dustWish = createDustWish(scene, () => onProgress("read"));
     const meteors = createMeteors(scene);
     const backdrop = createBackdrop();
     renderer.autoClear = false;
@@ -210,6 +210,7 @@ function Space({ api, onSelect, onError }) {
     }
     const wheel = (event) => {
       event.preventDefault();
+      onProgress(event.deltaY < 0 ? "zoom" : "exit");
       pointGalaxy(event.clientX, event.clientY);
       travelZoom(
         Math.exp(THREE.MathUtils.clamp(event.deltaY, -140, 140) * 0.0017),
@@ -277,6 +278,12 @@ function Space({ api, onSelect, onError }) {
       renderer.domElement.style.cursor = hovered === null ? "grab" : "pointer";
     }
     const hoverMove = (ev) => {
+      if (
+        activePointers.size &&
+        start &&
+        Math.hypot(ev.clientX - start.x, ev.clientY - start.y) > 18
+      )
+        onProgress("explore");
       if (!activePointers.size) pointGalaxy(ev.clientX, ev.clientY);
     };
     const hoverLeave = () => {
@@ -328,6 +335,8 @@ function Space({ api, onSelect, onError }) {
           x: (ev.touches[0].clientX + ev.touches[1].clientX) / 2,
           y: (ev.touches[0].clientY + ev.touches[1].clientY) / 2,
         };
+        if (Math.abs(d - pinchDistance) > 2)
+          onProgress(d > pinchDistance ? "zoom" : "exit");
         pointGalaxy(center.x, center.y);
         travelZoom(pinchDistance / Math.max(1, d), {
           clientX: center.x,
@@ -573,28 +582,103 @@ function Space({ api, onSelect, onError }) {
 }
 function App() {
   const api = useRef(null),
-    [guideOpen, setGuideOpen] = useState(true),
+    [step, setStep] = useState(() => {
+      try {
+        return localStorage.getItem("universo21-guide-done") ? 4 : 0;
+      } catch {
+        return 0;
+      }
+    }),
+    [hintVisible, setHintVisible] = useState(true),
     [selected, setSelected] = useState(null),
     [error, setError] = useState("");
+  const onProgress = useCallback((action) => {
+    setStep((current) => {
+      const next =
+        action === "explore" && current === 0
+          ? 1
+          : action === "zoom" && current <= 1
+            ? 2
+            : action === "read" && current === 2
+              ? 3
+              : action === "exit" && current === 3
+                ? 4
+                : current;
+      if (next === 4) {
+        try {
+          localStorage.setItem("universo21-guide-done", "1");
+        } catch {}
+      }
+      return next;
+    });
+  }, []);
+  useEffect(() => {
+    setHintVisible(true);
+    const timer = setTimeout(
+      () => setHintVisible(false),
+      step === 0 ? 12000 : 9000,
+    );
+    return () => clearTimeout(timer);
+  }, [step]);
+  const hints = [
+    [
+      "¡Feliz cumpleaños, Stacy!",
+      "21 galaxias celebran tus 21. Arrastra con el ratón o un dedo para explorar.",
+    ],
+    [
+      "Elige tu primera galaxia",
+      "Apunta a una galaxia y acerca con la rueda. En el celular, separa dos dedos sobre ella.",
+    ],
+    [
+      "Hay una sorpresa dentro",
+      "Acércate a una galaxia y detente dentro: el polvo estelar formará tu mensaje.",
+    ],
+    [
+      "Tu siguiente descubrimiento",
+      "Para salir, aleja con la rueda o junta dos dedos. Cada galaxia tiene otro mensaje de cumpleaños.",
+    ],
+  ];
   return (
     <main className="universe">
-      <Space api={api} onSelect={setSelected} onError={setError} />
+      <Space
+        api={api}
+        onSelect={setSelected}
+        onError={setError}
+        onProgress={onProgress}
+      />
       <header>
         <span className="identity">
           <Orbit size={19} />
           UNIVERSO 21
         </span>
-        <h1>Haz Zoom para continuar</h1>
+        {step < 2 && hintVisible && <h1>Haz Zoom para continuar</h1>}
         <span className="dedication">STACY · 21</span>
       </header>
-      <div className="space-instructions">
-        {selected !== null
-          ? "Detente un momento: aparecerá tu mensaje de cumpleaños. Aléjate para seguir explorando."
-          : "Arrastra para explorar · Señala una galaxia y acércate · Detente dentro para descubrir su mensaje"}
-      </div>
+      {step < 4 && hintVisible && (
+        <aside className="exploration-hint" aria-live="polite">
+          <span className="hint-step">{step + 1} / 4</span>
+          <strong>{hints[step][0]}</strong>
+          <p>{hints[step][1]}</p>
+          <button
+            aria-label="Ocultar indicación"
+            onClick={() => setHintVisible(false)}
+          >
+            ×
+          </button>
+        </aside>
+      )}
       <span className="galaxy-count">21 GALAXIAS · 21 DESEOS</span>
       <div className="camera-tools">
-        <button aria-label="Cómo explorar" title="Cómo explorar" onClick={() => setGuideOpen(true)}>?</button>
+        <button
+          aria-label="Cómo explorar"
+          title="Cómo explorar"
+          onClick={() => {
+            setStep(0);
+            setHintVisible(true);
+          }}
+        >
+          ?
+        </button>
         <button
           aria-label="Volver a la vista del universo"
           onClick={() => api.current?.reset()}
@@ -602,22 +686,6 @@ function App() {
           <RotateCcw size={16} />
         </button>
       </div>
-      {guideOpen && (
-        <div className="welcome-backdrop">
-          <section className="welcome" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
-            <span className="welcome-eyebrow">30 DE OCTUBRE · UNIVERSO 21</span>
-            <h2 id="welcome-title">¡Feliz cumpleaños, Stacy!</h2>
-            <p>Hay 21 galaxias para celebrar tus 21 años. Cada una guarda un mensaje para ti.</p>
-            <ol>
-              <li><strong>Explora.</strong> Arrastra con el ratón o con un dedo para mirar alrededor.</li>
-              <li><strong>Acércate.</strong> Apunta a una galaxia y mueve la rueda hacia delante. En el celular, separa dos dedos sobre ella.</li>
-              <li><strong>Haz una pausa.</strong> Dentro de la galaxia, deja de moverte: las estrellas formarán tu mensaje.</li>
-            </ol>
-            <p className="welcome-note">Para salir, aleja con la rueda o junta dos dedos. Puedes volver a leer estas indicaciones tocando ?.</p>
-            <button className="welcome-start" autoFocus onClick={() => setGuideOpen(false)}>Explorar mi universo</button>
-          </section>
-        </div>
-      )}
       <p className="sr-only" aria-live="polite">
         {selected !== null ? wishes[selected] : ""}
       </p>

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 // Letter silhouettes are sampled into individual stars, never a flat text card.
-export function createDustWish(scene) {
+export function createDustWish(scene, onRead = () => {}) {
   const group = new THREE.Group();
   scene.add(group);
   let points = null,
@@ -10,7 +10,8 @@ export function createDustWish(scene) {
     age = 0,
     formation = 0,
     wasMoving = true,
-    anchored = false;
+    anchored = false,
+    announced = false;
   const previousPosition = new THREE.Vector3(),
     previousRotation = new THREE.Quaternion();
   let first = true;
@@ -41,8 +42,9 @@ export function createDustWish(scene) {
     id = index;
     clear();
     rest = age = formation = 0;
+    announced = false;
     wasMoving = true;
-    anchored = false;
+    ((anchored = false), (announced = false));
     if (index === null) {
       uniforms.opacity.value = 0;
       return;
@@ -128,9 +130,13 @@ export function createDustWish(scene) {
         rest += dt;
         if (wasMoving && rest > 0.85) {
           wasMoving = false;
-          anchored = false;
+          ((anchored = false), (announced = false));
         }
         if (!wasMoving) age += dt;
+      }
+      if (!wasMoving && age > 2 && !announced) {
+        announced = true;
+        onRead();
       }
       const target = !wasMoving && age < 14 ? 1 : 0;
       formation +=
