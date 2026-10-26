@@ -560,7 +560,7 @@ h1 {
   stroke: #e7cf934f;
   stroke-width: 0.22;
   stroke-dasharray: 180;
-  stroke-dashoffset: 180;
+  stroke-dashoffset: 0;
   animation: draw-constellation 4s ease forwards;
 }
 .constellation-21 circle {
@@ -653,6 +653,7 @@ h1 {
   }
 }
 @keyframes draw-constellation {
+  from { stroke-dashoffset: 180; }
   to {
     stroke-dashoffset: 0;
   }
