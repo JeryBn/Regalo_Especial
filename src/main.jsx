@@ -573,6 +573,7 @@ function Space({ api, onSelect, onError }) {
 }
 function App() {
   const api = useRef(null),
+    [guideOpen, setGuideOpen] = useState(true),
     [selected, setSelected] = useState(null),
     [error, setError] = useState("");
   return (
@@ -587,11 +588,13 @@ function App() {
         <span className="dedication">STACY · 21</span>
       </header>
       <div className="space-instructions">
-        Arrastra para explorar <span>·</span> Apunta y acerca con la rueda{" "}
-        <span>·</span> En celular, separa dos dedos
+        {selected !== null
+          ? "Detente un momento: aparecerá tu mensaje de cumpleaños. Aléjate para seguir explorando."
+          : "Arrastra para explorar · Señala una galaxia y acércate · Detente dentro para descubrir su mensaje"}
       </div>
       <span className="galaxy-count">21 GALAXIAS · 21 DESEOS</span>
       <div className="camera-tools">
+        <button aria-label="Cómo explorar" title="Cómo explorar" onClick={() => setGuideOpen(true)}>?</button>
         <button
           aria-label="Volver a la vista del universo"
           onClick={() => api.current?.reset()}
@@ -599,6 +602,22 @@ function App() {
           <RotateCcw size={16} />
         </button>
       </div>
+      {guideOpen && (
+        <div className="welcome-backdrop">
+          <section className="welcome" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+            <span className="welcome-eyebrow">30 DE OCTUBRE · UNIVERSO 21</span>
+            <h2 id="welcome-title">¡Feliz cumpleaños, Stacy!</h2>
+            <p>Hay 21 galaxias para celebrar tus 21 años. Cada una guarda un mensaje para ti.</p>
+            <ol>
+              <li><strong>Explora.</strong> Arrastra con el ratón o con un dedo para mirar alrededor.</li>
+              <li><strong>Acércate.</strong> Apunta a una galaxia y mueve la rueda hacia delante. En el celular, separa dos dedos sobre ella.</li>
+              <li><strong>Haz una pausa.</strong> Dentro de la galaxia, deja de moverte: las estrellas formarán tu mensaje.</li>
+            </ol>
+            <p className="welcome-note">Para salir, aleja con la rueda o junta dos dedos. Puedes volver a leer estas indicaciones tocando ?.</p>
+            <button className="welcome-start" autoFocus onClick={() => setGuideOpen(false)}>Explorar mi universo</button>
+          </section>
+        </div>
+      )}
       <p className="sr-only" aria-live="polite">
         {selected !== null ? wishes[selected] : ""}
       </p>
