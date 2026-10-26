@@ -1,3 +1,4 @@
+import wishes from "./wishes.json";
 import { createDustWish } from "./dust-wish.js";
 import { createStarfield } from "./starfield.js";
 import { createMeteors } from "./meteors.js";
@@ -8,29 +9,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RotateCcw, Orbit } from "lucide-react";
 import "./style.css";
-const wishes = [
-  "¡Hoy se celebra a Stacy!",
-  "21 velitas. Un gran deseo.",
-  "¡Que empiece tu cumpleaños!",
-  "Hoy el pastel lleva tu nombre.",
-  "¡Una vuelta más al Sol!",
-  "Hoy las mañanitas son para ti.",
-  "¡Por un cumpleaños lleno de risas!",
-  "Stacy, pide tu deseo.",
-  "¡Hoy se vale repetir pastel!",
-  "Tu día merece confeti.",
-  "¡Brindemos por tus 21!",
-  "Que sobren sorpresas hoy.",
-  "¡Que suene tu canción favorita!",
-  "30 de octubre: tu gran día.",
-  "¡A soplar las velitas, Stacy!",
-  "Hoy te toca ser la festejada.",
-  "¡Otro pedacito de pastel!",
-  "21 años. ¡A celebrarlos!",
-  "¡Feliz cumpleaños, Brigitte!",
-  "Esta galaxia celebra contigo.",
-  "¡Felices 21, Stacy!",
-];
+
 function Space({ api, onSelect, onError, onProgress }) {
   const host = useRef(null);
   useEffect(() => {
@@ -219,7 +198,6 @@ function Space({ api, onSelect, onError, onProgress }) {
     };
     renderer.domElement.addEventListener("wheel", wheel, { passive: false });
     function select(ev) {
-
       if (
         !start ||
         Math.hypot(ev.clientX - start.x, ev.clientY - start.y) > 6 ||
@@ -271,10 +249,7 @@ function Space({ api, onSelect, onError, onProgress }) {
       );
       raycaster.setFromCamera(pointer, camera);
       const hit = raycaster.intersectObjects(hits)[0];
-      hovered =
-        hit
-          ? hit.object.userData.index
-          : null;
+      hovered = hit ? hit.object.userData.index : null;
       renderer.domElement.style.cursor = hovered === null ? "grab" : "pointer";
     }
     const hoverMove = (ev) => {

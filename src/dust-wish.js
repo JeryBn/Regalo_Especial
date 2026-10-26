@@ -15,6 +15,9 @@ export function createDustWish(scene, onRead = () => {}) {
   const previousPosition = new THREE.Vector3(),
     previousRotation = new THREE.Quaternion();
   let first = true;
+  let pages = [],
+    pageIndex = 0,
+    pageAge = 0;
   const uniforms = {
     formation: { value: 0 },
     time: { value: 0 },
@@ -44,33 +47,46 @@ export function createDustWish(scene, onRead = () => {}) {
     rest = age = formation = 0;
     announced = false;
     wasMoving = true;
-    ((anchored = false), (announced = false));
+    anchored = false;
     if (index === null) {
       uniforms.opacity.value = 0;
       return;
     }
+    const measure = document.createElement("canvas").getContext("2d");
+    measure.font = "600 44px Georgia";
+    const lines = [];
+    let line = "";
+    for (const word of text.split(/\s+/)) {
+      const next = line ? `${line} ${word}` : word;
+      if (line && measure.measureText(next).width > 900) {
+        lines.push(line);
+        line = word;
+      } else line = next;
+    }
+    if (line) lines.push(line);
+    pages = [];
+    for (let i = 0; i < lines.length; i += 3) pages.push(lines.slice(i, i + 3));
+    pageIndex = pageAge = 0;
+    paintPage();
+  }
+  function paintPage() {
+    clear();
     const canvas = document.createElement("canvas");
     canvas.width = 1000;
     canvas.height = 240;
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "white";
-    ctx.font = "600 76px Georgia";
+    ctx.font = "600 44px Georgia";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    const words = text.split(" "),
-      lines = [];
-    let line = "";
-    words.forEach((word) => {
-      const next = line ? line + " " + word : word;
-      if (ctx.measureText(next).width > 900 && line) {
-        lines.push(line);
-        line = word;
-      } else line = next;
-    });
-    if (line) lines.push(line);
+    const lines = pages[pageIndex];
     lines.forEach((s, i) =>
-      ctx.fillText(s, 500, 120 + (i - (lines.length - 1) / 2) * 80),
+      ctx.fillText(s, 500, 110 + (i - (lines.length - 1) / 2) * 54),
     );
+    if (pages.length > 1) {
+      ctx.font = "24px Georgia";
+      ctx.fillText(`${pageIndex + 1} / ${pages.length}`, 500, 218);
+    }
     const pixels = ctx.getImageData(0, 0, 1000, 240).data,
       positions = [],
       scatter = [],
@@ -123,6 +139,7 @@ export function createDustWish(scene, onRead = () => {}) {
       if (id === null || !points) return;
       const moving = translation > 0.6 || turn > 0.018;
       if (moving) {
+        pageAge = 0;
         rest = 0;
         age = 0;
         wasMoving = true;
@@ -130,7 +147,8 @@ export function createDustWish(scene, onRead = () => {}) {
         rest += dt;
         if (wasMoving && rest > 0.85) {
           wasMoving = false;
-          ((anchored = false), (announced = false));
+          anchored = false;
+          announced = false;
         }
         if (!wasMoving) age += dt;
       }
@@ -138,7 +156,21 @@ export function createDustWish(scene, onRead = () => {}) {
         announced = true;
         onRead();
       }
-      const target = !wasMoving && age < 14 ? 1 : 0;
+      const pageDuration = Math.max(
+        10,
+        pages[pageIndex].join(" ").split(/\s+/).length / 2.5 + 3,
+      );
+      if (!wasMoving) pageAge += dt;
+      if (pageAge > pageDuration && pages.length > 1) {
+        pageIndex = (pageIndex + 1) % pages.length;
+        pageAge = 0;
+        formation = 0;
+        paintPage();
+      }
+      const target =
+        !wasMoving && (pages.length === 1 || pageAge < pageDuration - 0.8)
+          ? 1
+          : 0;
       formation +=
         (target - formation) * (1 - Math.exp(-dt * (target ? 3.2 : 3.6)));
       uniforms.formation.value = formation;
