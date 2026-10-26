@@ -175,6 +175,89 @@ export function createStarfield(scene) {
   const celestial = points(mobile ? 15000 : 28000, false);
   const nearby = points(mobile ? 1500 : 3500, true);
   group.add(celestial, nearby);
+  // Peripheral blue ribbons are geometry, so their length is not limited by point-size hardware.
+  const travelUniforms = {
+    flow: { value: 0 },
+    strength: { value: 0 },
+    aspect: { value: 1 },
+    height: { value: 800 },
+    lateral: { value: new THREE.Vector2() },
+  };
+  const ribbonCount = mobile ? 100 : 210;
+  const ribbonPositions = [],
+    seeds = [],
+    corners = [];
+  const cornerPattern = [
+    [-1, 0],
+    [1, 0],
+    [-1, 1],
+    [1, 0],
+    [1, 1],
+    [-1, 1],
+  ];
+  for (let i = 0; i < ribbonCount; i++) {
+    const angle = random() * Math.PI * 2,
+      phase = random(),
+      rate = 0.15 + random() * 0.3,
+      brightness = 0.4 + random() * 0.6;
+    for (const corner of cornerPattern) {
+      ribbonPositions.push(0, 0, 0);
+      seeds.push(angle, phase, rate, brightness);
+      corners.push(...corner);
+    }
+  }
+  const ribbonGeometry = new THREE.BufferGeometry();
+  ribbonGeometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(ribbonPositions, 3),
+  );
+  ribbonGeometry.setAttribute(
+    "seed",
+    new THREE.Float32BufferAttribute(seeds, 4),
+  );
+  ribbonGeometry.setAttribute(
+    "corner",
+    new THREE.Float32BufferAttribute(corners, 2),
+  );
+  const ribbonMaterial = new THREE.ShaderMaterial({
+    uniforms: travelUniforms,
+    transparent: true,
+    depthTest: false,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    vertexShader: `
+      attribute vec4 seed;attribute vec2 corner;uniform float flow,strength,aspect,height;uniform vec2 lateral;
+      varying vec2 vUv;varying float vAlpha;
+      void main(){
+        float progress=fract(seed.y+flow*seed.z);
+        float radius=.26+progress*1.65;
+        vec2 radial=vec2(cos(seed.x),sin(seed.x));
+        vec2 head=radial*radius;
+        vec2 direction=normalize(radial+ lateral*.65);
+        float lengthPx=(18.+seed.w*95.)*strength;
+        float widthPx=.7+seed.w*.75;
+        vec2 side=vec2(-direction.y,direction.x);
+        vec2 p=head-direction*(corner.y*lengthPx*2./height)+side*corner.x*widthPx*2./height;
+        p.x/=aspect;
+        gl_Position=vec4(p,0.,1.);
+        vUv=vec2(corner.x,corner.y);
+        vAlpha=strength*seed.w*smoothstep(.26,.65,radius)*(1.-smoothstep(1.4,1.9,radius));
+      }`,
+    fragmentShader: `
+      varying vec2 vUv;varying float vAlpha;
+      void main(){
+        float crossLight=exp(-vUv.x*vUv.x*2.5);
+        float tail=pow(1.-vUv.y,1.7);
+        vec3 color=mix(vec3(.05,.38,1.),vec3(.65,.91,1.),pow(1.-vUv.y,4.));
+        gl_FragColor=vec4(color,crossLight*tail*vAlpha*.85);
+      }`,
+  });
+  const ribbons = new THREE.Mesh(ribbonGeometry, ribbonMaterial);
+  ribbons.frustumCulled = false;
+  ribbons.renderOrder = 5;
+  group.add(ribbons);
+  resources.push({ geometry: ribbonGeometry, material: ribbonMaterial });
+
   return {
     update(dt, camera, paused) {
       if (!paused) uniforms.time.value += Math.min(dt, 0.05);
@@ -192,7 +275,27 @@ export function createStarfield(scene) {
           1 - Math.exp(-Math.min(dt, 0.05) * 8),
         );
       }
+
+      const speed = uniforms.motion.value.length();
+      const targetStrength = paused
+        ? 0
+        : 1 - Math.exp(-Math.max(0, speed - 35) / 180);
+      travelUniforms.strength.value = THREE.MathUtils.lerp(
+        travelUniforms.strength.value,
+        targetStrength,
+        1 -
+          Math.exp(
+            -Math.min(dt, 0.05) *
+              (targetStrength > travelUniforms.strength.value ? 6 : 10),
+          ),
+      );
+      travelUniforms.flow.value += (Math.min(dt, 0.05) * speed) / 1100;
+      travelUniforms.aspect.value = camera.aspect;
+      travelUniforms.lateral.value
+        .set(uniforms.motion.value.x, uniforms.motion.value.y)
+        .multiplyScalar(1 / Math.max(80, speed));
       previousPosition.copy(camera.position);
+
       hasPreviousPosition = true;
       celestial.position.copy(camera.position);
       uniforms.cameraWorld.value.copy(camera.position);
@@ -200,6 +303,7 @@ export function createStarfield(scene) {
     resize(height, pixelRatio) {
       // Sizes are specified in screen pixels so distant stars remain visible.
       uniforms.pixelRatio.value = Math.min(pixelRatio || 1, 1.7);
+      travelUniforms.height.value = height;
     },
     dispose() {
       scene.remove(group);
@@ -210,5 +314,3 @@ export function createStarfield(scene) {
     },
   };
 }
-
-
