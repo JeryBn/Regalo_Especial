@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const stars = [
   [23, 20],
@@ -69,6 +69,21 @@ function downloadPostcard() {
   }, "image/png");
 }
 export default function BirthdayFinale({ onClose }) {
+  const dialog = useRef(null);
+  useEffect(() => {
+    const previous = document.activeElement;
+    dialog.current?.querySelector("button")?.focus();
+    const keydown = event => {
+      if (event.key === "Escape") onClose();
+      if (event.key !== "Tab") return;
+      const buttons = [...dialog.current.querySelectorAll("button:not(:disabled)")];
+      const first = buttons[0], last = buttons.at(-1);
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    };
+    document.addEventListener("keydown", keydown);
+    return () => { document.removeEventListener("keydown", keydown); previous?.focus(); };
+  }, [onClose]);
   const [stage, setStage] = useState("constellation");
   const [out, setOut] = useState([]);
   const [wished, setWished] = useState(false);
@@ -77,6 +92,7 @@ export default function BirthdayFinale({ onClose }) {
   return (
     <section
       className="birthday-finale"
+      ref={dialog}
       role="dialog"
       aria-modal="true"
       aria-label="Celebración de los 21 años de Stacy"

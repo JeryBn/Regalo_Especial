@@ -34,3 +34,9 @@ Esta versión se desarrolla y revisa localmente. Los cambios se guardan en GitHu
 Los 21 mensajes son breves y se muestrean como partículas individuales. Al descansar dentro de una galaxia se reúnen, forman palabras y después se dispersan. Volver a mover o girar la cámara disuelve el texto. No hay tarjeta, fondo rectangular ni botón de cerrar. La frase mantiene una alternativa accesible para lectores de pantalla.
 
 Las estelas azules periféricas se calculan a partir de la velocidad real de traslación. Se atenúan al frenar y no se activan por el giro ambiental lento.
+
+La celebración final se desbloquea al terminar los fragmentos de las 21 galaxias.
+El progreso se guarda en el navegador (en este dispositivo); las galaxias leídas se marcan en dorado.
+Incluye constelación 21, velitas táctiles, estrella del deseo y postal PNG descargable.
+Para revisar el cierre en desarrollo sin completar el recorrido: http://127.0.0.1:5173/?celebracion=1.
+Esta vista previa solo funciona con el servidor local de desarrollo y no cambia el progreso guardado.
