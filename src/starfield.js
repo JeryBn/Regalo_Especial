@@ -74,8 +74,8 @@ export function createStarfield(scene) {
       vec2 perpendicular = vec2(-vAxis.y, vAxis.x);
       vec2 shaped = vec2(dot(p, vAxis), dot(p, perpendicular) * (1.0 + vStretch));
       float r = length(shaped);
-      float core = exp(-r * r * 85.0);
-      float halo = exp(-r * r * 13.0) * .19;
+      float core = exp(-r * r * 48.0);
+      float halo = exp(-r * r * 13.0) * .28;
       float horizontal = exp(-abs(p.y) * 180.0) * pow(max(0.0, 1.0 - abs(p.x) * 2.0), 3.0);
       float vertical = exp(-abs(p.x) * 180.0) * pow(max(0.0, 1.0 - abs(p.y) * 2.0), 3.0);
       float light = core + halo + (horizontal + vertical) * vBright * .27;
@@ -91,7 +91,7 @@ export function createStarfield(scene) {
       sizes = [],
       lights = [],
       phases = [];
-    const bandTilt = new THREE.Euler(0.48, 0.16, -0.68);
+    const bandTilt = new THREE.Euler(0.06, 0.16, -0.68);
     for (let i = 0; i < count; i++) {
       let p;
       if (localField) {
@@ -100,7 +100,7 @@ export function createStarfield(scene) {
           (random() - 0.5) * 12000,
           (random() - 0.5) * 12000,
         );
-      } else if (random() < 0.42) {
+      } else if (random() < 0.5) {
         const angle = random() * Math.PI * 2;
         // A densely populated, uneven stellar river rather than a regular stripe.
         const width = 0.045 + 0.075 * (0.5 + 0.5 * Math.sin(angle * 3.0));
@@ -210,3 +210,5 @@ export function createStarfield(scene) {
     },
   };
 }
+
+
