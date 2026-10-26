@@ -1,4 +1,6 @@
 import wishes from "./wishes.json";
+import { loadReadGalaxies } from "./progress.js";
+import BirthdayFinale from "./birthday-finale.jsx";
 import { createDustWish } from "./dust-wish.js";
 import { createStarfield } from "./starfield.js";
 import { createMeteors } from "./meteors.js";
@@ -10,7 +12,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RotateCcw, Orbit } from "lucide-react";
 import "./style.css";
 
-function Space({ api, onSelect, onError, onProgress }) {
+function Space({ api, onSelect, onError, onProgress, onComplete }) {
   const host = useRef(null);
   useEffect(() => {
     let renderer;
@@ -73,7 +75,15 @@ function Space({ api, onSelect, onError, onProgress }) {
       geo.setAttribute("pointSize", new THREE.Float32BufferAttribute(sizes, 1));
       return new THREE.Points(geo, material);
     };
-    const dustWish = createDustWish(scene, () => onProgress("read"));
+    const readGalaxies = new Set(loadReadGalaxies());
+    const dustWish = createDustWish(
+      scene,
+      () => onProgress("read"),
+      (index) => {
+        readGalaxies.add(index);
+        onComplete(index);
+      },
+    );
     const meteors = createMeteors(scene);
     const backdrop = createBackdrop();
     renderer.autoClear = false;
@@ -117,10 +127,14 @@ function Space({ api, onSelect, onError, onProgress }) {
       labelContext.shadowBlur = 8;
       labelContext.fillStyle = "#d1dff5";
       labelContext.fillText(String(g + 1).padStart(2, "0"), 64, 32);
-      const number = new THREE.Sprite(new THREE.SpriteMaterial({
-        map: new THREE.CanvasTexture(labelCanvas), transparent: true,
-        depthWrite: false, depthTest: false,
-      }));
+      const number = new THREE.Sprite(
+        new THREE.SpriteMaterial({
+          map: new THREE.CanvasTexture(labelCanvas),
+          transparent: true,
+          depthWrite: false,
+          depthTest: false,
+        }),
+      );
       number.position.copy(position).add(new THREE.Vector3(0, size * 1.25, 0));
       number.scale.set(110, 55, 1);
       scene.add(number);
@@ -169,9 +183,15 @@ function Space({ api, onSelect, onError, onProgress }) {
       let index = 0,
         distance = Infinity;
       galaxies.forEach((g, i) => {
-        g.number.material.opacity = THREE.MathUtils.smoothstep(
-          camera.position.distanceTo(g.group.position), g.size * 2, g.size * 5,
-        ) * (hovered === i ? 1 : 0.8);
+        g.number.material.color.set(
+          readGalaxies.has(i) ? "#ffd58a" : "#ffffff",
+        );
+        g.number.material.opacity =
+          THREE.MathUtils.smoothstep(
+            camera.position.distanceTo(g.group.position),
+            g.size * 2,
+            g.size * 5,
+          ) * (hovered === i ? 1 : 0.8);
         const d = camera.position.distanceTo(g.group.position);
         if (d < distance) {
           distance = d;
@@ -452,7 +472,8 @@ function Space({ api, onSelect, onError, onProgress }) {
         g.hover +=
           ((hovered === i ? 1 : 0) - g.hover) * (1 - Math.exp(-delta * 7));
         g.group.visible = true;
-        g.glow.material.opacity = g.hover * 0.85 * reveal;
+        g.glow.material.color.set(readGalaxies.has(i) ? "#ffd58a" : "#d9c4ff");
+        g.glow.material.opacity = (g.hover * 0.85 + (readGalaxies.has(i) ? 0.18 : 0)) * reveal;
         g.group.children.forEach((child) => {
           if (child.isMesh && child.material.transparent) {
             const coreDistance = camera.position.distanceTo(g.group.position);
@@ -578,6 +599,21 @@ function Space({ api, onSelect, onError, onProgress }) {
   );
 }
 function App() {
+  const [read, setRead] = useState(loadReadGalaxies);
+  const [finaleOpen, setFinaleOpen] = useState(() => import.meta.env.DEV && new URLSearchParams(location.search).has("celebracion"));
+  const onComplete = useCallback((index) => {
+    setRead((previous) => {
+      if (previous.includes(index)) return previous;
+      const next = [...previous, index];
+      try {
+        localStorage.setItem("universo21-read", JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  }, []);
+  useEffect(() => {
+    if (read.length === 21) setFinaleOpen(true);
+  }, [read.length]);
   const api = useRef(null),
     [step, setStep] = useState(() => {
       try {
@@ -637,6 +673,7 @@ function App() {
         onSelect={setSelected}
         onError={setError}
         onProgress={onProgress}
+        onComplete={onComplete}
       />
       <header>
         <span className="identity">
@@ -659,8 +696,20 @@ function App() {
           </button>
         </aside>
       )}
-      <span className="galaxy-count">{selected !== null ? `GALAXIA ${String(selected + 1).padStart(2, "0")} / 21` : "21 GALAXIAS · EMPIEZA POR LA 01"}</span>
+      <span className="galaxy-count">
+        {selected !== null
+          ? `GALAXIA ${String(selected + 1).padStart(2, "0")} / 21`
+          : "21 GALAXIAS · EMPIEZA POR LA 01"}
+      </span>
       <div className="camera-tools">
+        {read.length === 21 && (
+          <button
+            aria-label="Abrir celebración de cumpleaños"
+            onClick={() => setFinaleOpen(true)}
+          >
+            ✦
+          </button>
+        )}
         <button
           aria-label="Cómo explorar"
           title="Cómo explorar"
@@ -678,6 +727,10 @@ function App() {
           <RotateCcw size={16} />
         </button>
       </div>
+      <span className="birthday-progress" aria-live="polite">
+        {read.length} / 21 felicitaciones descubiertas
+      </span>
+      {finaleOpen && <BirthdayFinale onClose={() => setFinaleOpen(false)} />}
       <p className="sr-only" aria-live="polite">
         {selected !== null ? wishes[selected] : ""}
       </p>
