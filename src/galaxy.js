@@ -3,7 +3,7 @@ import * as THREE from "three";
 // Procedural light, dust lanes and a stellar bulge; no remote image assets.
 export function createGalaxy(index, random, makePoints, mobile) {
   const group = new THREE.Group(),
-    size = 34 + random() * 24;
+    size = (34 + random() * 24) * 1.55;
   const palettes = [
     ["#fff0d8", "#9cafd0"],
     ["#ffe8c5", "#b9a6bf"],
