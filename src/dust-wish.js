@@ -10,20 +10,6 @@ export function createDustWish(
 ) {
   const group = new THREE.Group();
   scene.add(group);
-  const readingMaterial = new THREE.MeshBasicMaterial({
-    transparent: true,
-    opacity: 0,
-    depthTest: false,
-    depthWrite: false,
-    toneMapped: false,
-  });
-  const reading = new THREE.Mesh(
-    new THREE.PlaneGeometry(1, 0.24),
-    readingMaterial,
-  );
-  reading.renderOrder = 101;
-  reading.position.z = 0.01;
-  group.add(reading);
   let points = null,
     id = null,
     rest = 0,
@@ -54,7 +40,7 @@ export function createDustWish(
     blending: THREE.AdditiveBlending,
     uniforms,
     vertexShader: `attribute vec3 scatter;attribute float seed;uniform float formation,time,ratio;varying float brightness;void main(){vec3 p=mix(scatter,position,formation);float drift=(1.-formation);p+=vec3(sin(time*.3+seed*6.),cos(time*.23+seed*8.),sin(time*.17+seed*9.))*drift*.08;vec4 mv=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*mv;gl_PointSize=(1.8+seed*.8)*ratio;brightness=.85+seed*.15;}`,
-    fragmentShader: `uniform float opacity;varying float brightness;void main(){float r=length(gl_PointCoord-.5);float light=exp(-r*r*22.);if(light<.01)discard;gl_FragColor=vec4(mix(vec3(.6,.78,1.),vec3(1.,.92,.76),brightness),light*opacity*brightness);}`,
+    fragmentShader: `uniform float opacity;varying float brightness;void main(){float r=length(gl_PointCoord-.5);float light=exp(-r*r*15.);if(light<.01)discard;gl_FragColor=vec4(mix(vec3(1.,.68,.22),vec3(1.,.94,.64),brightness),light*opacity*brightness);}`,
   });
   function clear() {
     if (points) {
@@ -106,10 +92,6 @@ export function createDustWish(
         218,
       );
     }
-    readingMaterial.map?.dispose();
-    readingMaterial.map = new THREE.CanvasTexture(canvas);
-    readingMaterial.map.colorSpace = THREE.SRGBColorSpace;
-    readingMaterial.needsUpdate = true;
     const pixels = ctx.getImageData(0, 0, 1000, 240).data,
       positions = [],
       scatter = [],
@@ -182,10 +164,10 @@ export function createDustWish(
       uniforms.time.value += dt;
       uniforms.ratio.value = Math.min(pixelRatio, 1.7);
       if (id === null || !points) {
-        reading.visible = false;
+
         return;
       }
-      reading.visible = true;
+
       const moving = translation > 0.6 || turn > 0.018;
       if (moving) {
         pageAge = 0;
@@ -225,9 +207,7 @@ export function createDustWish(
         });
       }
       uniforms.formation.value = formation;
-      const clarity = THREE.MathUtils.smoothstep(formation, 0.65, 0.98);
-      uniforms.opacity.value = formation * (1 - clarity * 0.9);
-      readingMaterial.opacity = clarity;
+      uniforms.opacity.value = formation;
       if (!anchored && target === 1) {
         const distance = 24,
           forward = camera.getWorldDirection(new THREE.Vector3()),
@@ -251,9 +231,7 @@ export function createDustWish(
     dispose() {
       clear();
       material.dispose();
-      readingMaterial.map?.dispose();
-      readingMaterial.dispose();
-      reading.geometry.dispose();
+
       scene.remove(group);
     },
   };

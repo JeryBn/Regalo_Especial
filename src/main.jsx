@@ -167,6 +167,7 @@ function Space({ api, onSelect, onError, onProgress, onComplete, onPage }) {
       controls.autoRotate = false;
     }
     function focus(index) {
+      dustWish.set(null, "");
       const galaxy = galaxies[index];
       travelIndex = index;
       desiredDistance = galaxy.size * 0.45;
@@ -760,6 +761,11 @@ function App() {
               ›
             </button>
           ) : (
+            read.includes(messagePage.galaxy) && messagePage.galaxy < 20 ?
+            <button className="message-finish" disabled={!messagePage.ready}
+              onClick={() => api.current?.focus(messagePage.galaxy + 1)}>
+              Galaxia {String(messagePage.galaxy + 2).padStart(2, "0")} →
+            </button> :
             <button
               className="message-finish"
               disabled={!messagePage.ready}
