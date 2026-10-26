@@ -653,7 +653,9 @@ h1 {
   }
 }
 @keyframes draw-constellation {
-  from { stroke-dashoffset: 180; }
+  from {
+    stroke-dashoffset: 180;
+  }
   to {
     stroke-dashoffset: 0;
   }
@@ -683,6 +685,84 @@ h1 {
     font-size: 13px;
   }
 }
-.universe:has(.birthday-finale) > :is(header,.exploration-hint,.galaxy-count,.camera-tools,.birthday-progress){visibility:hidden}
-.wish-star{position:relative}
-.wish-star.wish-sent::after{content:'';position:absolute;right:45%;top:55%;width:250px;height:3px;background:linear-gradient(90deg,transparent,#ffe7a8);box-shadow:0 0 18px #f4c36c;transform:rotate(-36deg);transform-origin:right}
+.universe:has(.birthday-finale)
+  > :is(
+    header,
+    .exploration-hint,
+    .galaxy-count,
+    .camera-tools,
+    .birthday-progress
+  ) {
+  visibility: hidden;
+}
+.wish-star {
+  position: relative;
+}
+.wish-star.wish-sent::after {
+  content: "";
+  position: absolute;
+  right: 45%;
+  top: 55%;
+  width: 250px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #ffe7a8);
+  box-shadow: 0 0 18px #f4c36c;
+  transform: rotate(-36deg);
+  transform-origin: right;
+}
+.message-navigation {
+  position: absolute;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 8px;
+  border: 1px solid #c3d6ff22;
+  border-radius: 25px;
+  background: #071020aa;
+  backdrop-filter: blur(8px);
+  z-index: 3;
+}
+.message-navigation button {
+  border: 0;
+  background: transparent;
+  color: #e5efff;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 20px;
+  font-size: 25px;
+  transition:
+    background 0.2s,
+    opacity 0.2s;
+}
+.message-navigation button:hover:not(:disabled) {
+  background: #a2c8ff22;
+}
+.message-navigation button:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+.message-navigation span {
+  font-size: 11px;
+  color: #bbcee8;
+  min-width: 42px;
+  text-align: center;
+}
+.message-navigation .message-finish {
+  font-size: 11px;
+  padding: 0 12px;
+}
+@media (max-width: 750px) {
+  .message-navigation {
+    bottom: 16px;
+  }
+  .message-navigation button {
+    min-height: 40px;
+    min-width: 40px;
+  }
+  .birthday-progress {
+    font-size: 9px;
+  }
+}

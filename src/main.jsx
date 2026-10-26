@@ -12,7 +12,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RotateCcw, Orbit } from "lucide-react";
 import "./style.css";
 
-function Space({ api, onSelect, onError, onProgress, onComplete }) {
+function Space({ api, onSelect, onError, onProgress, onComplete, onPage }) {
   const host = useRef(null);
   useEffect(() => {
     let renderer;
@@ -83,6 +83,7 @@ function Space({ api, onSelect, onError, onProgress, onComplete }) {
         readGalaxies.add(index);
         onComplete(index);
       },
+      onPage,
     );
     const meteors = createMeteors(scene);
     const backdrop = createBackdrop();
@@ -419,6 +420,7 @@ function Space({ api, onSelect, onError, onProgress, onComplete }) {
     const visibility = () => (visible = !document.hidden);
     document.addEventListener("visibilitychange", visibility);
     api.current = {
+      page: (delta) => dustWish.page(delta),
       focus,
       zoom: (factor) => travelZoom(factor),
       reset: () => {
@@ -473,7 +475,8 @@ function Space({ api, onSelect, onError, onProgress, onComplete }) {
           ((hovered === i ? 1 : 0) - g.hover) * (1 - Math.exp(-delta * 7));
         g.group.visible = true;
         g.glow.material.color.set(readGalaxies.has(i) ? "#ffd58a" : "#d9c4ff");
-        g.glow.material.opacity = (g.hover * 0.85 + (readGalaxies.has(i) ? 0.18 : 0)) * reveal;
+        g.glow.material.opacity =
+          (g.hover * 0.85 + (readGalaxies.has(i) ? 0.18 : 0)) * reveal;
         g.group.children.forEach((child) => {
           if (child.isMesh && child.material.transparent) {
             const coreDistance = camera.position.distanceTo(g.group.position);
@@ -599,8 +602,13 @@ function Space({ api, onSelect, onError, onProgress, onComplete }) {
   );
 }
 function App() {
+  const [messagePage, setMessagePage] = useState(null);
   const [read, setRead] = useState(loadReadGalaxies);
-  const [finaleOpen, setFinaleOpen] = useState(() => import.meta.env.DEV && new URLSearchParams(location.search).has("celebracion"));
+  const [finaleOpen, setFinaleOpen] = useState(
+    () =>
+      import.meta.env.DEV &&
+      new URLSearchParams(location.search).has("celebracion"),
+  );
   const onComplete = useCallback((index) => {
     setRead((previous) => {
       if (previous.includes(index)) return previous;
@@ -674,6 +682,7 @@ function App() {
         onError={setError}
         onProgress={onProgress}
         onComplete={onComplete}
+        onPage={setMessagePage}
       />
       <header>
         <span className="identity">
@@ -730,6 +739,37 @@ function App() {
       <span className="birthday-progress" aria-live="polite">
         {read.length} / 21 felicitaciones descubiertas
       </span>
+      {messagePage && !finaleOpen && (
+        <nav className="message-navigation" aria-label="Fragmentos del mensaje">
+          <button
+            disabled={!messagePage.ready || messagePage.index === 0}
+            onClick={() => api.current?.page(-1)}
+            aria-label="Fragmento anterior"
+          >
+            ‹
+          </button>
+          <span aria-live="polite">
+            {messagePage.index + 1} / {messagePage.total}
+          </span>
+          {messagePage.index < messagePage.total - 1 ? (
+            <button
+              disabled={!messagePage.ready}
+              onClick={() => api.current?.page(1)}
+              aria-label="Fragmento siguiente"
+            >
+              ›
+            </button>
+          ) : (
+            <button
+              className="message-finish"
+              disabled={!messagePage.ready}
+              onClick={() => api.current?.page(0)}
+            >
+              Leído ✓
+            </button>
+          )}
+        </nav>
+      )}
       {finaleOpen && <BirthdayFinale onClose={() => setFinaleOpen(false)} />}
       <p className="sr-only" aria-live="polite">
         {selected !== null ? wishes[selected] : ""}

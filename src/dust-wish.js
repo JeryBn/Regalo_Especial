@@ -6,16 +6,23 @@ export function createDustWish(
   scene,
   onRead = () => {},
   onComplete = () => {},
+  onPage = () => {},
 ) {
   const group = new THREE.Group();
   scene.add(group);
   const readingMaterial = new THREE.MeshBasicMaterial({
-    transparent: true, opacity: 0, depthTest: false, depthWrite: false,
+    transparent: true,
+    opacity: 0,
+    depthTest: false,
+    depthWrite: false,
     toneMapped: false,
   });
-  const reading = new THREE.Mesh(new THREE.PlaneGeometry(1, .24), readingMaterial);
+  const reading = new THREE.Mesh(
+    new THREE.PlaneGeometry(1, 0.24),
+    readingMaterial,
+  );
   reading.renderOrder = 101;
-  reading.position.z = .01;
+  reading.position.z = 0.01;
   group.add(reading);
   let points = null,
     id = null,
@@ -29,6 +36,8 @@ export function createDustWish(
     previousRotation = new THREE.Quaternion();
   let first = true;
   const completed = new Set();
+  let pendingPage = null,
+    pageReady = false;
   let pages = [],
     pageIndex = 0,
     pageAge = 0;
@@ -56,6 +65,8 @@ export function createDustWish(
   }
   function set(index, text) {
     if (index === id) return;
+    pendingPage = null;
+    pageReady = false;
     id = index;
     clear();
     rest = age = formation = 0;
@@ -63,12 +74,13 @@ export function createDustWish(
     wasMoving = true;
     anchored = false;
     if (index === null) {
+      onPage(null);
       uniforms.opacity.value = 0;
       return;
     }
     const measure = document.createElement("canvas").getContext("2d");
     measure.font = "500 46px Arial";
-    pages = paginateMessage(text, line => measure.measureText(line).width);
+    pages = paginateMessage(text, (line) => measure.measureText(line).width);
     pageIndex = pageAge = 0;
     paintPage();
   }
@@ -132,9 +144,31 @@ export function createDustWish(
     points.frustumCulled = false;
     points.renderOrder = 100;
     group.add(points);
+    pageReady = false;
+    onPage({ galaxy: id, index: pageIndex, total: pages.length, ready: false });
   }
   return {
     set,
+    page(delta) {
+      if (id === null || !pageReady || pendingPage !== null) return;
+      if (delta === 0) {
+        if (pageIndex === pages.length - 1 && !completed.has(id)) {
+          completed.add(id);
+          onComplete(id);
+        }
+        return;
+      }
+      const next = Math.max(0, Math.min(pages.length - 1, pageIndex + delta));
+      if (next === pageIndex) return;
+      pendingPage = next;
+      pageReady = false;
+      onPage({
+        galaxy: id,
+        index: pageIndex,
+        total: pages.length,
+        ready: false,
+      });
+    },
     update(dt, camera, pixelRatio) {
       const translation = first
           ? 0
@@ -147,7 +181,10 @@ export function createDustWish(
       previousRotation.copy(camera.quaternion);
       uniforms.time.value += dt;
       uniforms.ratio.value = Math.min(pixelRatio, 1.7);
-      if (id === null || !points) { reading.visible = false; return; }
+      if (id === null || !points) {
+        reading.visible = false;
+        return;
+      }
       reading.visible = true;
       const moving = translation > 0.6 || turn > 0.018;
       if (moving) {
@@ -168,34 +205,28 @@ export function createDustWish(
         announced = true;
         onRead();
       }
-      const pageDuration = Math.max(
-        22,
-        pages[pageIndex].join(" ").split(/\s+/).length / 1.5 + 7,
-      );
-      if (!wasMoving) pageAge += dt;
-      if (
-        pageAge > pageDuration &&
-        pageIndex === pages.length - 1 &&
-        !completed.has(id)
-      ) {
-        completed.add(id);
-        onComplete(id);
-      }
-      if (pageAge > pageDuration && pages.length > 1) {
-        pageIndex = (pageIndex + 1) % pages.length;
+      if (pendingPage !== null && formation < 0.03) {
+        pageIndex = pendingPage;
+        pendingPage = null;
         pageAge = 0;
         formation = 0;
         paintPage();
       }
-      const target =
-        !wasMoving && (pages.length === 1 || pageAge < pageDuration - 0.8)
-          ? 1
-          : 0;
+      const target = !wasMoving && pendingPage === null ? 1 : 0;
       formation +=
-        (target - formation) * (1 - Math.exp(-dt * (target ? 3.2 : 3.6)));
+        (target - formation) * (1 - Math.exp(-dt * (target ? 1.8 : 5)));
+      if (formation > 0.98 && !pageReady && pendingPage === null) {
+        pageReady = true;
+        onPage({
+          galaxy: id,
+          index: pageIndex,
+          total: pages.length,
+          ready: true,
+        });
+      }
       uniforms.formation.value = formation;
-      const clarity = THREE.MathUtils.smoothstep(formation, .65, .98);
-      uniforms.opacity.value = formation * (1 - clarity * .9);
+      const clarity = THREE.MathUtils.smoothstep(formation, 0.65, 0.98);
+      uniforms.opacity.value = formation * (1 - clarity * 0.9);
       readingMaterial.opacity = clarity;
       if (!anchored && target === 1) {
         const distance = 24,

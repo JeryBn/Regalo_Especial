@@ -40,3 +40,7 @@ El progreso se guarda en el navegador (en este dispositivo); las galaxias leída
 Incluye constelación 21, velitas táctiles, estrella del deseo y postal PNG descargable.
 Para revisar el cierre en desarrollo sin completar el recorrido: http://127.0.0.1:5173/?celebracion=1.
 Esta vista previa solo funciona con el servidor local de desarrollo y no cambia el progreso guardado.
+
+La lectura de fragmentos es manual: flechas anterior/siguiente, sin avance por tiempo.
+Cada cambio dispersa el texto y reúne el fragmento siguiente con polvo estelar.
+En el último fragmento, «Leído ✓» confirma la lectura y registra la galaxia en el progreso.
