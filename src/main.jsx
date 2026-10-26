@@ -1,3 +1,4 @@
+import { createDustWish } from "./dust-wish.js";
 import { createStarfield } from "./starfield.js";
 import { createMeteors } from "./meteors.js";
 import { createBackdrop, createInterior, createNebula } from "./environment.js";
@@ -5,30 +6,30 @@ import React, { useRef, useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { RotateCcw, X, Orbit } from "lucide-react";
+import { RotateCcw, Orbit } from "lucide-react";
 import "./style.css";
 const wishes = [
-  "Que no falten motivos para reír.",
-  "Que lleguen planes que te emocionen.",
-  "Que tus metas encuentren su momento.",
-  "Que descubras lugares increíbles.",
+  "Que lleguen aventuras.",
+  "Que tus ideas despeguen.",
+  "Más días para recordar.",
+  "Descubre nuevos lugares.",
   "Que te rodeen buenas personas.",
-  "Que tengas días que quieras repetir.",
-  "Que sobren las buenas noticias.",
-  "Que te animes a probar cosas nuevas.",
-  "Que celebres también los pequeños logros.",
-  "Que encuentres tiempo para lo que disfrutas.",
-  "Que este año te sorprenda para bien.",
-  "Que nunca falte un buen pastel.",
-  "Que lleguen aventuras inesperadas.",
-  "Que tengas música para cada momento.",
-  "Que las ideas se conviertan en planes.",
-  "Que haya más descansos sin prisa.",
-  "Que aprendas algo que te encante.",
-  "Que tengas historias buenísimas que contar.",
-  "Que los días difíciles tengan buenas pausas.",
-  "Que celebres todo lo que has conseguido.",
-  "Que tus 21 sean un capítulo increíble.",
+  "Que sobren las risas.",
+  "Buenas noticias en camino.",
+  "Atrévete a algo nuevo.",
+  "Celebra cada pequeño logro.",
+  "Tiempo para lo que disfrutas.",
+  "Que este año te sorprenda.",
+  "Que nunca falte pastel.",
+  "Nuevas historias por vivir.",
+  "Música para cada momento.",
+  "Que tus planes tomen forma.",
+  "Días sin mirar el reloj.",
+  "Algo nuevo por aprender.",
+  "Historias dignas de contar.",
+  "Que encuentres tu ritmo.",
+  "Celebra lo que has logrado.",
+  "¡Felices 21, Stacy!",
 ];
 function Space({ api, onSelect, onError }) {
   const host = useRef(null);
@@ -93,6 +94,7 @@ function Space({ api, onSelect, onError }) {
       geo.setAttribute("pointSize", new THREE.Float32BufferAttribute(sizes, 1));
       return new THREE.Points(geo, material);
     };
+    const dustWish = createDustWish(scene);
     const meteors = createMeteors(scene);
     const backdrop = createBackdrop();
     renderer.autoClear = false;
@@ -500,6 +502,11 @@ function Space({ api, onSelect, onError }) {
       else controls.update(delta);
       camera.updateMatrixWorld();
       starfield.update(delta, camera, paused);
+      dustWish.set(
+        travelIndex !== null && interiorFade > 0.45 ? travelIndex : null,
+        travelIndex !== null ? wishes[travelIndex] : "",
+      );
+      dustWish.update(delta, camera, renderer.getPixelRatio());
       if (backdrop.material.uniforms.cameraBasis) {
         backdrop.material.uniforms.cameraBasis.value.setFromMatrix4(
           camera.matrixWorld,
@@ -525,6 +532,7 @@ function Space({ api, onSelect, onError }) {
     renderer.domElement.addEventListener("webglcontextlost", lost);
     return () => {
       cancelAnimationFrame(frame);
+      dustWish.dispose();
       starfield.dispose();
       meteors.dispose();
       observer.disconnect();
@@ -591,21 +599,9 @@ function App() {
           <RotateCcw size={16} />
         </button>
       </div>
-      {selected !== null && (
-        <section className="wish-panel" aria-live="polite">
-          <button
-            className="close"
-            aria-label="Cerrar deseo"
-            onClick={() => setSelected(null)}
-          >
-            <X size={16} />
-          </button>
-          <span className="wish-number">
-            GALAXIA {String(selected + 1).padStart(2, "0")} / 21
-          </span>
-          <h2>{wishes[selected]}</h2>
-        </section>
-      )}
+      <p className="sr-only" aria-live="polite">
+        {selected !== null ? wishes[selected] : ""}
+      </p>
       {error && (
         <div className="error" role="alert">
           {error}

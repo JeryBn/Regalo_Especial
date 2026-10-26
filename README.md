@@ -28,3 +28,9 @@ Esta versión se desarrolla y revisa localmente. Los cambios se guardan en GitHu
 ## Meteoros y estrellas fugaces
 
 `src/meteors.js` crea estelas, núcleos luminosos, rocas irregulares y fragmentos con geometría y texturas generadas. Las fotografías del usuario solo orientaron colores y formas; no se cargan en la página. Las apariciones usan probabilidad dependiente del tiempo, con parámetros nuevos elegidos con Math.random en cada evento, sin bucle de trayectorias ni cronograma fijo. Se limita la cantidad simultánea a cinco y se liberan geometrías/materiales al terminar. El tamaño del fenómeno se adapta a la escala de la cámara.
+
+## Deseos de polvo estelar
+
+Los 21 mensajes son breves y se muestrean como partículas individuales. Al descansar dentro de una galaxia se reúnen, forman palabras y después se dispersan. Volver a mover o girar la cámara disuelve el texto. No hay tarjeta, fondo rectangular ni botón de cerrar. La frase mantiene una alternativa accesible para lectores de pantalla.
+
+Las estelas azules periféricas se calculan a partir de la velocidad real de traslación. Se atenúan al frenar y no se activan por el giro ambiental lento.
