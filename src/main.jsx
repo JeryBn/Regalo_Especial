@@ -614,11 +614,6 @@ function App() {
   }, []);
   useEffect(() => {
     setHintVisible(true);
-    const timer = setTimeout(
-      () => setHintVisible(false),
-      step === 0 ? 12000 : 9000,
-    );
-    return () => clearTimeout(timer);
   }, [step]);
   const hints = [
     [
@@ -655,7 +650,7 @@ function App() {
         <span className="dedication">STACY · 21</span>
       </header>
       {step < 4 && hintVisible && (
-        <aside className="exploration-hint" aria-live="polite">
+        <aside key={step} className="exploration-hint" aria-live="polite">
           <span className="hint-step">{step + 1} / 4</span>
           <strong>{hints[step][0]}</strong>
           <p>{hints[step][1]}</p>
