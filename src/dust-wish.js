@@ -1,7 +1,11 @@
 import * as THREE from "three";
 
 // Letter silhouettes are sampled into individual stars, never a flat text card.
-export function createDustWish(scene, onRead = () => {}) {
+export function createDustWish(
+  scene,
+  onRead = () => {},
+  onComplete = () => {},
+) {
   const group = new THREE.Group();
   scene.add(group);
   let points = null,
@@ -15,6 +19,7 @@ export function createDustWish(scene, onRead = () => {}) {
   const previousPosition = new THREE.Vector3(),
     previousRotation = new THREE.Quaternion();
   let first = true;
+  const completed = new Set();
   let pages = [],
     pageIndex = 0,
     pageAge = 0;
@@ -85,7 +90,11 @@ export function createDustWish(scene, onRead = () => {}) {
     );
     {
       ctx.font = "24px Georgia";
-      ctx.fillText(`Galaxia ${String(id + 1).padStart(2, "0")} · ${pageIndex + 1} / ${pages.length}`, 500, 218);
+      ctx.fillText(
+        `Galaxia ${String(id + 1).padStart(2, "0")} · ${pageIndex + 1} / ${pages.length}`,
+        500,
+        218,
+      );
     }
     const pixels = ctx.getImageData(0, 0, 1000, 240).data,
       positions = [],
@@ -161,6 +170,14 @@ export function createDustWish(scene, onRead = () => {}) {
         pages[pageIndex].join(" ").split(/\s+/).length / 1.5 + 7,
       );
       if (!wasMoving) pageAge += dt;
+      if (
+        pageAge > pageDuration &&
+        pageIndex === pages.length - 1 &&
+        !completed.has(id)
+      ) {
+        completed.add(id);
+        onComplete(id);
+      }
       if (pageAge > pageDuration && pages.length > 1) {
         pageIndex = (pageIndex + 1) % pages.length;
         pageAge = 0;
