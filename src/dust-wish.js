@@ -83,9 +83,9 @@ export function createDustWish(scene, onRead = () => {}) {
     lines.forEach((s, i) =>
       ctx.fillText(s, 500, 110 + (i - (lines.length - 1) / 2) * 54),
     );
-    if (pages.length > 1) {
+    {
       ctx.font = "24px Georgia";
-      ctx.fillText(`${pageIndex + 1} / ${pages.length}`, 500, 218);
+      ctx.fillText(`Galaxia ${String(id + 1).padStart(2, "0")} · ${pageIndex + 1} / ${pages.length}`, 500, 218);
     }
     const pixels = ctx.getImageData(0, 0, 1000, 240).data,
       positions = [],

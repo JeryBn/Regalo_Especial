@@ -106,6 +106,25 @@ function Space({ api, onSelect, onError, onProgress }) {
       }
       group.position.copy(position);
       scene.add(group);
+      const labelCanvas = document.createElement("canvas");
+      labelCanvas.width = 128;
+      labelCanvas.height = 64;
+      const labelContext = labelCanvas.getContext("2d");
+      labelContext.font = "500 38px sans-serif";
+      labelContext.textAlign = "center";
+      labelContext.textBaseline = "middle";
+      labelContext.shadowColor = "#000";
+      labelContext.shadowBlur = 8;
+      labelContext.fillStyle = "#d1dff5";
+      labelContext.fillText(String(g + 1).padStart(2, "0"), 64, 32);
+      const number = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: new THREE.CanvasTexture(labelCanvas), transparent: true,
+        depthWrite: false, depthTest: false,
+      }));
+      number.position.copy(position).add(new THREE.Vector3(0, size * 1.25, 0));
+      number.scale.set(110, 55, 1);
+      scene.add(number);
+      galaxy.number = number;
       const hit = new THREE.Mesh(
         new THREE.SphereGeometry(size, 12, 10),
         new THREE.MeshBasicMaterial({ visible: false }),
@@ -150,6 +169,9 @@ function Space({ api, onSelect, onError, onProgress }) {
       let index = 0,
         distance = Infinity;
       galaxies.forEach((g, i) => {
+        g.number.material.opacity = THREE.MathUtils.smoothstep(
+          camera.position.distanceTo(g.group.position), g.size * 2, g.size * 5,
+        ) * (hovered === i ? 1 : 0.8);
         const d = camera.position.distanceTo(g.group.position);
         if (d < distance) {
           distance = d;
@@ -597,7 +619,7 @@ function App() {
     ],
     [
       "Elige tu primera galaxia",
-      "Apunta a una galaxia y acerca con la rueda. En el celular, separa dos dedos sobre ella.",
+      "Busca la galaxia 01 y acerca con la rueda o separando dos dedos. Sigue los números para leer en orden.",
     ],
     [
       "Hay una sorpresa dentro",
@@ -637,7 +659,7 @@ function App() {
           </button>
         </aside>
       )}
-      <span className="galaxy-count">21 GALAXIAS · 21 DESEOS</span>
+      <span className="galaxy-count">{selected !== null ? `GALAXIA ${String(selected + 1).padStart(2, "0")} / 21` : "21 GALAXIAS · EMPIEZA POR LA 01"}</span>
       <div className="camera-tools">
         <button
           aria-label="Cómo explorar"
