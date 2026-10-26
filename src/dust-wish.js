@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { paginateMessage } from "./message-layout.js";
 
 // Letter silhouettes are sampled into individual stars, never a flat text card.
 export function createDustWish(
@@ -8,6 +9,14 @@ export function createDustWish(
 ) {
   const group = new THREE.Group();
   scene.add(group);
+  const readingMaterial = new THREE.MeshBasicMaterial({
+    transparent: true, opacity: 0, depthTest: false, depthWrite: false,
+    toneMapped: false,
+  });
+  const reading = new THREE.Mesh(new THREE.PlaneGeometry(1, .24), readingMaterial);
+  reading.renderOrder = 101;
+  reading.position.z = .01;
+  group.add(reading);
   let points = null,
     id = null,
     rest = 0,
@@ -58,19 +67,8 @@ export function createDustWish(
       return;
     }
     const measure = document.createElement("canvas").getContext("2d");
-    measure.font = "600 44px Georgia";
-    const lines = [];
-    let line = "";
-    for (const word of text.split(/\s+/)) {
-      const next = line ? `${line} ${word}` : word;
-      if (line && measure.measureText(next).width > 900) {
-        lines.push(line);
-        line = word;
-      } else line = next;
-    }
-    if (line) lines.push(line);
-    pages = [];
-    for (let i = 0; i < lines.length; i += 3) pages.push(lines.slice(i, i + 3));
+    measure.font = "500 46px Arial";
+    pages = paginateMessage(text, line => measure.measureText(line).width);
     pageIndex = pageAge = 0;
     paintPage();
   }
@@ -81,21 +79,25 @@ export function createDustWish(
     canvas.height = 240;
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "white";
-    ctx.font = "600 44px Georgia";
+    ctx.font = "500 46px Arial";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     const lines = pages[pageIndex];
     lines.forEach((s, i) =>
-      ctx.fillText(s, 500, 110 + (i - (lines.length - 1) / 2) * 54),
+      ctx.fillText(s, 500, 105 + (i - (lines.length - 1) / 2) * 58),
     );
     {
-      ctx.font = "24px Georgia";
+      ctx.font = "24px Arial";
       ctx.fillText(
         `Galaxia ${String(id + 1).padStart(2, "0")} · ${pageIndex + 1} / ${pages.length}`,
         500,
         218,
       );
     }
+    readingMaterial.map?.dispose();
+    readingMaterial.map = new THREE.CanvasTexture(canvas);
+    readingMaterial.map.colorSpace = THREE.SRGBColorSpace;
+    readingMaterial.needsUpdate = true;
     const pixels = ctx.getImageData(0, 0, 1000, 240).data,
       positions = [],
       scatter = [],
@@ -145,7 +147,8 @@ export function createDustWish(
       previousRotation.copy(camera.quaternion);
       uniforms.time.value += dt;
       uniforms.ratio.value = Math.min(pixelRatio, 1.7);
-      if (id === null || !points) return;
+      if (id === null || !points) { reading.visible = false; return; }
+      reading.visible = true;
       const moving = translation > 0.6 || turn > 0.018;
       if (moving) {
         pageAge = 0;
@@ -191,7 +194,9 @@ export function createDustWish(
       formation +=
         (target - formation) * (1 - Math.exp(-dt * (target ? 3.2 : 3.6)));
       uniforms.formation.value = formation;
-      uniforms.opacity.value = formation;
+      const clarity = THREE.MathUtils.smoothstep(formation, .65, .98);
+      uniforms.opacity.value = formation * (1 - clarity * .9);
+      readingMaterial.opacity = clarity;
       if (!anchored && target === 1) {
         const distance = 24,
           forward = camera.getWorldDirection(new THREE.Vector3()),
@@ -206,7 +211,7 @@ export function createDustWish(
           distance *
           Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) *
           camera.aspect *
-          0.78;
+          Math.min(0.88, 720 / (window.innerWidth || 720));
         group.scale.setScalar(width);
         anchored = true;
       }
@@ -215,6 +220,9 @@ export function createDustWish(
     dispose() {
       clear();
       material.dispose();
+      readingMaterial.map?.dispose();
+      readingMaterial.dispose();
+      reading.geometry.dispose();
       scene.remove(group);
     },
   };
