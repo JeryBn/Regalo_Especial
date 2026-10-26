@@ -25,3 +25,7 @@ https://drop.app.runonflux.io/feliz-cumpleanos/
 
 Flux Drop conserva la publicación sin cuenta durante 7 días desde su última actualización. El historial permanece en GitHub.
 
+
+## Meteoros y estrellas fugaces
+
+`src/meteors.js` crea estelas, núcleos luminosos, rocas irregulares y fragmentos con geometría y texturas generadas. Las fotografías del usuario solo orientaron colores y formas; no se cargan en la página. Las apariciones usan probabilidad dependiente del tiempo, con parámetros nuevos elegidos con Math.random en cada evento, sin bucle de trayectorias ni cronograma fijo. Se limita la cantidad simultánea a cinco y se liberan geometrías/materiales al terminar. El tamaño del fenómeno se adapta a la escala de la cámara.
