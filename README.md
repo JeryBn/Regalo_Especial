@@ -44,3 +44,6 @@ Esta vista previa solo funciona con el servidor local de desarrollo y no cambia 
 La lectura de fragmentos es manual: flechas anterior/siguiente, sin avance por tiempo.
 Cada cambio dispersa el texto y reúne el fragmento siguiente con polvo estelar.
 En el último fragmento, «Leído ✓» confirma la lectura y registra la galaxia en el progreso.
+
+Se puede regresar a la galaxia anterior desde los controles de lectura.
+El fragmento de cada galaxia se conserva en el navegador, incluso al recargar, y se restaura al regresar.

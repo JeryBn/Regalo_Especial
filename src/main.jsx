@@ -742,6 +742,14 @@ function App() {
       </span>
       {messagePage && !finaleOpen && (
         <nav className="message-navigation" aria-label="Fragmentos del mensaje">
+          {messagePage.galaxy > 0 && <button
+            className="message-finish galaxy-back"
+            disabled={!messagePage.ready}
+            aria-label={`Viajar a la galaxia anterior, ${String(messagePage.galaxy).padStart(2, "0")}`}
+            title="Galaxia anterior · tu fragmento queda guardado"
+            onClick={() => api.current?.focus(messagePage.galaxy - 1)}>
+            ← {String(messagePage.galaxy).padStart(2, "0")}
+          </button>}
           <button
             disabled={!messagePage.ready || messagePage.index === 0}
             onClick={() => api.current?.page(-1)}

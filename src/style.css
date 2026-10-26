@@ -766,3 +766,5 @@ h1 {
     font-size: 9px;
   }
 }
+.message-navigation .galaxy-back{border-right:1px solid #bfd4fa25;border-radius:0;padding:0 10px}
+.message-navigation{gap:8px;max-width:92vw;white-space:nowrap}

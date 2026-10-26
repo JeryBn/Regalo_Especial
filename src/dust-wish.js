@@ -22,6 +22,11 @@ export function createDustWish(
     previousRotation = new THREE.Quaternion();
   let first = true;
   const completed = new Set();
+  let bookmarks = {};
+  try {
+    const saved = JSON.parse(localStorage.getItem("universo21-fragments") || "{}");
+    if (saved && typeof saved === "object" && !Array.isArray(saved)) bookmarks = saved;
+  } catch {}
   let pendingPage = null,
     pageReady = false;
   let pages = [],
@@ -67,10 +72,14 @@ export function createDustWish(
     const measure = document.createElement("canvas").getContext("2d");
     measure.font = "500 46px Arial";
     pages = paginateMessage(text, (line) => measure.measureText(line).width);
-    pageIndex = pageAge = 0;
+    const savedPage = bookmarks[index];
+    pageIndex = Number.isInteger(savedPage) ? Math.max(0, Math.min(pages.length - 1, savedPage)) : 0;
+    pageAge = 0;
     paintPage();
   }
   function paintPage() {
+    bookmarks[id] = pageIndex;
+    try { localStorage.setItem("universo21-fragments", JSON.stringify(bookmarks)); } catch {}
     clear();
     const canvas = document.createElement("canvas");
     canvas.width = 1000;
