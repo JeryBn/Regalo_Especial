@@ -53,7 +53,7 @@ function Space({ api, onSelect, onError, onProgress }) {
     renderer.setClearColor("#02030a");
     const scene = new THREE.Scene(),
       camera = new THREE.PerspectiveCamera(58, 1, 0.03, 18000);
-    camera.position.set(0, 180, 4300);
+    camera.position.set(0, 180, 3000);
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.055;
@@ -194,7 +194,7 @@ function Space({ api, onSelect, onError, onProgress }) {
         distance = nearest.distance;
       if (factor < 1 && nearest.distance > nearest.galaxy.size * 2.5) {
         const hit = raycaster.intersectObjects(hits)[0];
-        if (hit && camera.position.length() < 3400) {
+        if (hit) {
           const g = galaxies[hit.object.userData.index];
           direction = g.group.position.clone().sub(base).normalize();
           distance = base.distanceTo(g.group.position);
@@ -219,7 +219,7 @@ function Space({ api, onSelect, onError, onProgress }) {
     };
     renderer.domElement.addEventListener("wheel", wheel, { passive: false });
     function select(ev) {
-      if (camera.position.length() > 3400) return;
+
       if (
         !start ||
         Math.hypot(ev.clientX - start.x, ev.clientY - start.y) > 6 ||
@@ -272,7 +272,7 @@ function Space({ api, onSelect, onError, onProgress }) {
       raycaster.setFromCamera(pointer, camera);
       const hit = raycaster.intersectObjects(hits)[0];
       hovered =
-        camera.position.length() < 3400 && hit
+        hit
           ? hit.object.userData.index
           : null;
       renderer.domElement.style.cursor = hovered === null ? "grab" : "pointer";
@@ -379,7 +379,7 @@ function Space({ api, onSelect, onError, onProgress }) {
     renderer.domElement.addEventListener("pointerdown", down);
     renderer.domElement.addEventListener("pointerup", up);
     renderer.domElement.addEventListener("pointercancel", cancel);
-    const home = new THREE.Vector3(0, 180, 4300);
+    const home = new THREE.Vector3(0, 180, 3000);
     let firstResize = true;
     const resize = () => {
       const w = mount.clientWidth,
@@ -387,7 +387,7 @@ function Space({ api, onSelect, onError, onProgress }) {
       renderer.setSize(w, h);
       camera.aspect = w / h;
       if (firstResize) {
-        home.z = Math.max(4300, (4300 / camera.aspect) * 0.85);
+        home.z = Math.max(3000, (2200 / camera.aspect) * 0.85);
         camera.position.copy(home);
         firstResize = false;
       }
@@ -449,7 +449,7 @@ function Space({ api, onSelect, onError, onProgress }) {
       );
       backdrop.material.uniforms.time.value = now * 0.001;
       nebula.update(0.15 + farFade * 0.85, delta, paused);
-      const reveal = 1 - THREE.MathUtils.smoothstep(farFade, 0.65, 0.98);
+      const reveal = 1 - THREE.MathUtils.smoothstep(farFade, 0.65, 0.98) * 0.25;
       material.uniforms.reveal.value = reveal;
       galaxies.forEach((g, i) => {
         g.hover +=
