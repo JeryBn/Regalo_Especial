@@ -17,14 +17,13 @@ npm run dev
 npm run build
 ```
 
-Publicar `dist/`. React, Vite, Three.js y OrbitControls. `src/environment.js` genera gas y campos estelares; `src/galaxy.js`, las galaxias; `src/main.jsx`, la navegación y los deseos.
+Publicar `dist/`. React, Vite, Three.js y OrbitControls. `src/starfield.js` genera el cielo envolvente, paralaje y estelas de vuelo; `src/environment.js` genera el gas y la luz; `src/galaxy.js`, las galaxias; `src/main.jsx`, la navegación y los deseos.
 
 ## Revisión
 
-https://drop.app.runonflux.io/feliz-cumpleanos/
+Abre http://127.0.0.1:5173 después de ejecutar npm run dev.
 
-Flux Drop conserva la publicación sin cuenta durante 7 días desde su última actualización. El historial permanece en GitHub.
-
+Esta versión se desarrolla y revisa localmente. Los cambios se guardan en GitHub; no se publica automáticamente en Drop.
 
 ## Meteoros y estrellas fugaces
 

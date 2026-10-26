@@ -73,7 +73,7 @@ function Space({ api, onSelect, onError }) {
       return (seed - 1) / 2147483646;
     };
     const vertex = `attribute float pointSize;attribute vec3 tint;varying vec3 vColor;uniform float scale;void main(){vColor=tint;vec4 mv=modelViewMatrix*vec4(position,1.0);gl_PointSize=clamp(pointSize*scale/-mv.z,.35,26.0);gl_Position=projectionMatrix*mv;}`;
-    const fragment = `uniform float reveal;varying vec3 vColor;void main(){float d=length(gl_PointCoord-.5)*2.0;if(d>1.0)discard;float glow=exp(-d*d*5.0);gl_FragColor=vec4(vColor,glow*.48*reveal);}`;
+    const fragment = `uniform float reveal;varying vec3 vColor;void main(){float d=length(gl_PointCoord-.5)*2.0;if(d>1.0)discard;float glow=exp(-d*d*28.0)+exp(-d*d*7.0)*.07;gl_FragColor=vec4(vColor,glow*.48*reveal);}`;
     const material = new THREE.ShaderMaterial({
       vertexShader: vertex,
       fragmentShader: fragment,
@@ -446,8 +446,18 @@ function Space({ api, onSelect, onError }) {
         g.group.visible = true;
         g.glow.material.opacity = g.hover * 0.85 * reveal;
         g.group.children.forEach((child) => {
-          if (child.isMesh && child.material.transparent)
-            child.material.opacity = (0.55 + g.hover * 0.3) * reveal;
+          if (child.isMesh && child.material.transparent) {
+            const coreDistance = camera.position.distanceTo(g.group.position);
+            const inside =
+              1 -
+              THREE.MathUtils.smoothstep(
+                coreDistance,
+                g.size * 0.7,
+                g.size * 2,
+              );
+            child.material.opacity =
+              (0.55 + g.hover * 0.3) * reveal * (1 - inside * 0.67);
+          }
         });
       });
       const nearest = nearestGalaxy();
