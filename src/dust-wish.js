@@ -157,8 +157,8 @@ export function createDustWish(scene, onRead = () => {}) {
         onRead();
       }
       const pageDuration = Math.max(
-        10,
-        pages[pageIndex].join(" ").split(/\s+/).length / 2.5 + 3,
+        22,
+        pages[pageIndex].join(" ").split(/\s+/).length / 1.5 + 7,
       );
       if (!wasMoving) pageAge += dt;
       if (pageAge > pageDuration && pages.length > 1) {
